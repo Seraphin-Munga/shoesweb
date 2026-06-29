@@ -1,26 +1,113 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background-color: #ffffff;
+  color: #0a0a0a;
+  font-family: var(--font-geist-sans, Arial, sans-serif);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Load animations ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-12px); }
+}
+
+@keyframes expandLine {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes searchDrop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeBackdrop {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-up    { animation: fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-in    { animation: fadeBackdrop 0.2s ease both; }
+.animate-float      { animation: floatY 5s ease-in-out infinite; }
+.animate-slide-left { animation: slideInLeft 0.6s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-search-drop{ animation: searchDrop 0.25s cubic-bezier(0.16,1,0.3,1) both; }
+
+.delay-100 { animation-delay: 0.10s; }
+.delay-200 { animation-delay: 0.20s; }
+.delay-300 { animation-delay: 0.30s; }
+.delay-400 { animation-delay: 0.40s; }
+.delay-500 { animation-delay: 0.55s; }
+.delay-600 { animation-delay: 0.70s; }
+
+/* ── Hover line underline ── */
+.nav-link {
+  position: relative;
+  padding-bottom: 2px;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 1px;
+  background: #0a0a0a;
+  transition: width 0.25s ease;
+}
+.nav-link:hover::after { width: 100%; }
+
+/* ── Card lift ── */
+.card-lift {
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1),
+              box-shadow 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+}
+
+/* ── Product image zoom ── */
+.img-zoom { transition: transform 0.5s cubic-bezier(0.16,1,0.3,1); }
+.product-card:hover .img-zoom { transform: scale(1.06); }
+
+/* ── Button ── */
+.btn-dark {
+  background: #0a0a0a;
+  color: #fff;
+  transition: background 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+}
+.btn-dark:hover {
+  background: #222;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+
+.btn-outline {
+  border: 1.5px solid #0a0a0a;
+  color: #0a0a0a;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.btn-outline:hover { background: #0a0a0a; color: #fff; }
+
+/* ── Arrow icon slide ── */
+.arrow-icon { transition: transform 0.25s ease; }
+.group:hover .arrow-icon { transform: translateX(4px); }

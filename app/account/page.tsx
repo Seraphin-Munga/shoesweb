@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -8,7 +9,7 @@ import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
 
 /* ── Sign In form ─────────────────────────────────────────────── */
-function SignInForm({ onSwitch }: { onSwitch: () => void }) {
+function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?: () => void }) {
   const { signIn, loading } = useAuth();
   const [email, setEmail]   = useState("");
   const [pass, setPass]     = useState("");
@@ -19,6 +20,7 @@ function SignInForm({ onSwitch }: { onSwitch: () => void }) {
     setError("");
     try {
       await signIn(email, pass);
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     }
@@ -77,7 +79,7 @@ function SignInForm({ onSwitch }: { onSwitch: () => void }) {
 }
 
 /* ── Sign Up form ─────────────────────────────────────────────── */
-function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
+function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?: () => void }) {
   const { signUp, loading } = useAuth();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
@@ -92,6 +94,7 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
     if (form.password.length < 6)       { setError("Password must be at least 6 characters."); return; }
     try {
       await signUp(form.firstName, form.lastName, form.email, form.password);
+      onSuccess?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     }
@@ -250,10 +253,23 @@ function Dashboard() {
   );
 }
 
-/* ── Page ─────────────────────────────────────────────────────── */
-export default function AccountPage() {
+/* ── Page content (uses useSearchParams — must be inside Suspense) */
+function AccountContent() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
+  const searchParams = useSearchParams();
+  const router       = useRouter();
+
+  const redirectTo = searchParams.get("redirect") || "/account";
+  const initialTab = searchParams.get("tab") === "signup" ? "signup" : "signin";
+  const [tab, setTab] = useState<"signin" | "signup">(initialTab);
+
+  // Redirect after successful sign-in/sign-up
+  const handleSuccess = () => router.replace(redirectTo);
+
+  // If already signed in and there's a redirect target, send them there
+  useEffect(() => {
+    if (user && redirectTo !== "/account") router.replace(redirectTo);
+  }, [user, redirectTo, router]);
 
   return (
     <>
@@ -302,8 +318,8 @@ export default function AccountPage() {
 
               {/* Form */}
               {tab === "signin"
-                ? <SignInForm onSwitch={() => setTab("signup")} />
-                : <SignUpForm onSwitch={() => setTab("signin")} />
+                ? <SignInForm onSwitch={() => setTab("signup")} onSuccess={handleSuccess} />
+                : <SignUpForm onSwitch={() => setTab("signin")} onSuccess={handleSuccess} />
               }
 
               {/* Divider */}
@@ -323,5 +339,14 @@ export default function AccountPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+/* ── Page ─────────────────────────────────────────────────────── */
+export default function AccountPage() {
+  return (
+    <Suspense>
+      <AccountContent />
+    </Suspense>
   );
 }

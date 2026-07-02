@@ -1,59 +1,218 @@
 "use client";
 
-import { useState } from "react";
-import { ORDERS, STATUS_CONFIG, type OrderStatus } from "../data/mockData";
+import { useState, useEffect, useCallback } from "react";
+import { useAdminAuth } from "../context/AdminAuthContext";
+import { fetchOrders, adminUpdateOrderStatus } from "../../lib/api";
+import { formatZar } from "../../lib/currency";
+import type { ApiOrder, ApiOrderStatus } from "../../lib/types";
 
-const ALL_STATUSES: OrderStatus[] = ["delivered", "shipped", "processing", "pending", "cancelled"];
+/* ─── Status config ──────────────────────────────────────── */
+type StatusMeta = { label: string; bg: string; text: string; next?: ApiOrderStatus };
 
-export default function AdminOrdersPage() {
-  const [search, setSearch]     = useState("");
-  const [statusFilter, setStatus] = useState<OrderStatus | "all">("all");
-  const [selected, setSelected]   = useState<Set<string>>(new Set());
+const STATUS: Record<ApiOrderStatus, StatusMeta> = {
+  0: { label: "Pending",    bg: "bg-yellow-50",  text: "text-yellow-700", next: 1 },
+  1: { label: "Processing", bg: "bg-blue-50",    text: "text-blue-700",   next: 2 },
+  2: { label: "Shipped",    bg: "bg-indigo-50",  text: "text-indigo-700", next: 3 },
+  3: { label: "Delivered",  bg: "bg-green-50",   text: "text-green-700"  },
+  4: { label: "Cancelled",  bg: "bg-red-50",     text: "text-red-600"    },
+};
 
-  const filtered = ORDERS.filter((o) => {
-    const q = search.trim().toLowerCase();
-    const matchQ = !q || o.id.toLowerCase().includes(q) || o.customer.toLowerCase().includes(q) || o.product.toLowerCase().includes(q);
-    const matchS = statusFilter === "all" || o.status === statusFilter;
-    return matchQ && matchS;
-  });
+const ALL_STATUSES = [0, 1, 2, 3, 4] as ApiOrderStatus[];
+const PAGE_SIZE = 20;
 
-  const totalRevenue = filtered.reduce((s, o) => s + o.amount, 0);
+/* ─── Status badge ───────────────────────────────────────── */
+function StatusBadge({ status }: { status: ApiOrderStatus }) {
+  const s = STATUS[status];
+  return (
+    <span className={`inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full ${s.bg} ${s.text}`}>
+      {s.label}
+    </span>
+  );
+}
 
-  const toggleAll = () => {
-    if (selected.size === filtered.length) setSelected(new Set());
-    else setSelected(new Set(filtered.map((o) => o.id)));
+/* ─── Order detail drawer ────────────────────────────────── */
+function OrderDrawer({ order, token, onClose, onUpdated }: {
+  order: ApiOrder; token: string | null;
+  onClose: () => void; onUpdated: (o: ApiOrder) => void;
+}) {
+  const [updating, setUpdating] = useState(false);
+  const [error, setError]       = useState("");
+  const meta = STATUS[order.status];
+
+  const advance = async () => {
+    if (!token || meta.next == null) return;
+    setUpdating(true); setError("");
+    try {
+      const updated = await adminUpdateOrderStatus(order.id, meta.next, token);
+      onUpdated(updated);
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : "Error"); }
+    finally { setUpdating(false); }
   };
 
-  const toggleOne = (id: string) => {
+  const cancel = async () => {
+    if (!token) return;
+    setUpdating(true); setError("");
+    try {
+      const updated = await adminUpdateOrderStatus(order.id, 4, token);
+      onUpdated(updated);
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : "Error"); }
+    finally { setUpdating(false); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end">
+      <div className="absolute inset-0 bg-zinc-900/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white w-full max-w-md h-full overflow-y-auto shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
+          <div>
+            <h2 className="font-black text-zinc-900 text-base">{order.orderNumber}</h2>
+            <p className="text-xs text-zinc-400">{new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</p>
+          </div>
+          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6 flex-1">
+          {error && <p className="text-xs text-red-500 bg-red-50 border border-red-100 px-4 py-3 rounded-xl">{error}</p>}
+
+          {/* Status */}
+          <div className="flex items-center justify-between">
+            <StatusBadge status={order.status} />
+            <div className="flex gap-2">
+              {meta.next != null && (
+                <button onClick={advance} disabled={updating}
+                  className="text-xs font-bold px-3 py-1.5 rounded-xl bg-zinc-900 text-white hover:bg-zinc-700 disabled:opacity-50 transition-colors">
+                  {updating ? "Updating…" : `Mark ${STATUS[meta.next].label}`}
+                </button>
+              )}
+              {order.status !== 4 && order.status !== 3 && (
+                <button onClick={cancel} disabled={updating}
+                  className="text-xs font-bold px-3 py-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 disabled:opacity-50 transition-colors">
+                  Cancel
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Customer */}
+          <div className="p-4 bg-zinc-50 rounded-2xl">
+            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Customer</p>
+            <p className="font-bold text-zinc-900 text-sm">{order.customerName}</p>
+            <p className="text-xs text-zinc-500">{order.customerEmail}</p>
+            {order.shippingAddress && <p className="text-xs text-zinc-400 mt-1">{order.shippingAddress}</p>}
+          </div>
+
+          {/* Items */}
+          <div>
+            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Items</p>
+            <div className="space-y-2">
+              {(order.items ?? []).map((item) => (
+                <div key={item.id} className="flex items-center justify-between py-2.5 border-b border-zinc-50">
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-900">{item.productName}</p>
+                    <p className="text-xs text-zinc-400">
+                      {item.size ? `Size ${item.size} · ` : ""}Qty {item.quantity}
+                    </p>
+                  </div>
+                  <p className="font-bold text-zinc-900 text-sm">{formatZar(item.totalPrice)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="flex items-center justify-between p-4 bg-zinc-900 rounded-2xl">
+            <span className="text-sm font-bold text-white">Total</span>
+            <span className="text-lg font-black text-white">{formatZar(order.totalAmount)}</span>
+          </div>
+
+          {order.notes && (
+            <div className="p-4 bg-amber-50 rounded-2xl">
+              <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-1">Notes</p>
+              <p className="text-xs text-amber-900">{order.notes}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Page ───────────────────────────────────────────────── */
+export default function AdminOrdersPage() {
+  const { token } = useAdminAuth();
+
+  const [orders, setOrders]       = useState<ApiOrder[]>([]);
+  const [total, setTotal]         = useState(0);
+  const [loading, setLoading]     = useState(true);
+  const [search, setSearch]       = useState("");
+  const [statusFilter, setStatus] = useState<ApiOrderStatus | "all">("all");
+  const [page, setPage]           = useState(1);
+  const [selected, setSelected]   = useState<Set<number>>(new Set());
+  const [drawer, setDrawer]       = useState<ApiOrder | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetchOrders({
+        search:   search || undefined,
+        status:   statusFilter !== "all" ? statusFilter : undefined,
+        page,
+        pageSize: PAGE_SIZE,
+      }, token ?? undefined);
+      setOrders(res.items);
+      setTotal(res.total);
+    } catch { setOrders([]); setTotal(0); }
+    finally { setLoading(false); }
+  }, [search, statusFilter, page, token]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalRevenue = orders.reduce((s, o) => s + o.totalAmount, 0);
+
+  const toggleAll = () =>
+    selected.size === orders.length
+      ? setSelected(new Set())
+      : setSelected(new Set(orders.map((o) => o.id)));
+
+  const toggleOne = (id: number) => {
     const next = new Set(selected);
     if (next.has(id)) next.delete(id); else next.add(id);
     setSelected(next);
   };
 
-  const counts = ALL_STATUSES.reduce<Record<OrderStatus, number>>((acc, s) => {
-    acc[s] = ORDERS.filter((o) => o.status === s).length;
+  const handleUpdated = (updated: ApiOrder) => {
+    setOrders((prev) => prev.map((o) => o.id === updated.id ? updated : o));
+    setDrawer(updated);
+  };
+
+  /* Count per status from current page (rough — full counts need separate API calls) */
+  const counts = ALL_STATUSES.reduce<Record<number, number>>((acc, s) => {
+    acc[s] = orders.filter((o) => o.status === s).length;
     return acc;
-  }, {} as Record<OrderStatus, number>);
+  }, {});
 
   return (
     <div className="max-w-7xl space-y-5">
 
-      {/* Status summary row */}
+      {/* Status chips */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         {ALL_STATUSES.map((s) => {
-          const sc = STATUS_CONFIG[s];
+          const sc = STATUS[s];
+          const active = statusFilter === s;
           return (
-            <button key={s}
-              onClick={() => setStatus((v) => v === s ? "all" : s)}
+            <button key={s} onClick={() => { setStatus((v) => v === s ? "all" : s); setPage(1); }}
               className={`p-3.5 rounded-xl border text-left transition-all ${
-                statusFilter === s
-                  ? "border-zinc-900 bg-zinc-900 text-white"
-                  : "bg-white border-zinc-100 hover:border-zinc-300"
+                active ? "border-zinc-900 bg-zinc-900" : "bg-white border-zinc-100 hover:border-zinc-300"
               }`}>
-              <div className={`text-xl font-black leading-none ${statusFilter === s ? "text-white" : "text-zinc-900"}`}>
-                {counts[s]}
+              <div className={`text-xl font-black leading-none ${active ? "text-white" : "text-zinc-900"}`}>
+                {counts[s] ?? 0}
               </div>
-              <div className={`text-[10px] font-semibold mt-1 ${statusFilter === s ? "text-zinc-400" : sc.text}`}>
+              <div className={`text-[10px] font-semibold mt-1 ${active ? "text-zinc-400" : sc.text}`}>
                 {sc.label}
               </div>
             </button>
@@ -67,8 +226,8 @@ export default function AdminOrdersPage() {
           <svg className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by order, customer, product…"
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Search by order number or customer…"
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-zinc-200 bg-white rounded-xl outline-none focus:border-zinc-400 transition-colors" />
         </div>
         {selected.size > 0 && (
@@ -77,12 +236,6 @@ export default function AdminOrdersPage() {
             <button onClick={() => setSelected(new Set())} className="text-zinc-400 hover:text-white ml-1">✕</button>
           </div>
         )}
-        <button className="flex items-center gap-2 border border-zinc-200 bg-white text-zinc-600 text-xs font-bold px-4 py-2.5 rounded-xl hover:border-zinc-400 transition-colors ml-auto">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-          Export CSV
-        </button>
       </div>
 
       {/* Table */}
@@ -93,70 +246,93 @@ export default function AdminOrdersPage() {
               <tr className="border-b border-zinc-100 bg-zinc-50">
                 <th className="px-5 py-3.5 w-10">
                   <input type="checkbox"
-                    checked={selected.size === filtered.length && filtered.length > 0}
+                    checked={selected.size === orders.length && orders.length > 0}
                     onChange={toggleAll}
                     className="w-4 h-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer" />
                 </th>
-                {["Order ID", "Customer", "Product", "Date", "Qty", "Amount", "Status", ""].map((h) => (
-                  <th key={h} className="text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-3 py-3.5">
-                    {h}
-                  </th>
+                {["Order", "Customer", "Items", "Date", "Total", "Status", ""].map((h) => (
+                  <th key={h} className="text-left text-[10px] font-bold text-zinc-400 uppercase tracking-widest px-3 py-3.5">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-50">
-              {filtered.map((o) => {
-                const sc   = STATUS_CONFIG[o.status];
-                const date = new Date(o.date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-                const sel  = selected.has(o.id);
-                return (
-                  <tr key={o.id}
-                    className={`hover:bg-zinc-50/70 transition-colors group ${sel ? "bg-zinc-50" : ""}`}>
-                    <td className="px-5 py-3.5">
-                      <input type="checkbox" checked={sel} onChange={() => toggleOne(o.id)}
-                        className="w-4 h-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer" />
-                    </td>
-                    <td className="px-3 py-3.5 font-mono text-xs font-bold text-zinc-500">{o.id}</td>
-                    <td className="px-3 py-3.5">
-                      <div className="font-semibold text-zinc-900 text-xs">{o.customer}</div>
-                      <div className="text-[10px] text-zinc-400">{o.email}</div>
-                    </td>
-                    <td className="px-3 py-3.5 text-xs text-zinc-600">{o.product}</td>
-                    <td className="px-3 py-3.5 text-xs text-zinc-400">{date}</td>
-                    <td className="px-3 py-3.5 text-xs font-medium text-zinc-500">×{o.qty}</td>
-                    <td className="px-3 py-3.5 font-bold text-zinc-900 text-sm">${o.amount.toFixed(2)}</td>
-                    <td className="px-3 py-3.5">
-                      <span className={`inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full ${sc.bg} ${sc.text}`}>
-                        {sc.label}
-                      </span>
-                    </td>
-                    <td className="px-3 py-3.5">
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-zinc-900 transition-colors" title="View order">
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
+              {loading ? (
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td className="px-5 py-4"><div className="w-4 h-4 bg-zinc-100 rounded" /></td>
+                    {[1,2,3,4,5,6].map((j) => (
+                      <td key={j} className="px-3 py-4"><div className="h-3 w-20 bg-zinc-100 rounded-full" /></td>
+                    ))}
+                    <td />
                   </tr>
-                );
-              })}
+                ))
+              ) : orders.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-16 text-center">
+                    <p className="text-zinc-400 text-sm">No orders found.</p>
+                    {(search || statusFilter !== "all") && (
+                      <button onClick={() => { setSearch(""); setStatus("all"); setPage(1); }}
+                        className="mt-2 text-xs text-zinc-500 underline hover:text-zinc-900">
+                        Clear filters
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ) : orders.map((o) => (
+                <tr key={o.id}
+                  onClick={() => setDrawer(o)}
+                  className={`hover:bg-zinc-50/70 transition-colors cursor-pointer group ${selected.has(o.id) ? "bg-zinc-50" : ""}`}>
+                  <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
+                    <input type="checkbox" checked={selected.has(o.id)} onChange={() => toggleOne(o.id)}
+                      className="w-4 h-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer" />
+                  </td>
+                  <td className="px-3 py-3.5 font-mono text-xs font-bold text-zinc-500">{o.orderNumber}</td>
+                  <td className="px-3 py-3.5">
+                    <div className="font-semibold text-zinc-900 text-xs">{o.customerName}</div>
+                    <div className="text-[10px] text-zinc-400">{o.customerEmail}</div>
+                  </td>
+                  <td className="px-3 py-3.5 text-xs text-zinc-500">
+                    {o.items?.length ?? 0} item{(o.items?.length ?? 0) !== 1 ? "s" : ""}
+                  </td>
+                  <td className="px-3 py-3.5 text-xs text-zinc-400">
+                    {new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  </td>
+                  <td className="px-3 py-3.5 font-bold text-zinc-900 text-sm">{formatZar(o.totalAmount)}</td>
+                  <td className="px-3 py-3.5"><StatusBadge status={o.status} /></td>
+                  <td className="px-3 py-3.5">
+                    <svg className="w-4 h-4 text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
-        {/* Footer */}
         <div className="px-5 py-3.5 border-t border-zinc-100 flex items-center justify-between flex-wrap gap-3">
-          <p className="text-xs text-zinc-400">
-            Showing {filtered.length} of {ORDERS.length} orders
-          </p>
+          <p className="text-xs text-zinc-400">{total} order{total !== 1 ? "s" : ""} total</p>
           <p className="text-xs text-zinc-500">
-            Filtered total:{" "}
-            <span className="font-black text-zinc-900">${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>
+            Page total: <span className="font-black text-zinc-900">{formatZar(totalRevenue)}</span>
           </p>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button disabled={page === 1} onClick={() => setPage(page - 1)}
+                className="text-xs font-semibold border border-zinc-200 px-3 py-1.5 rounded-lg hover:border-zinc-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">← Prev</button>
+              <span className="text-xs text-zinc-500 px-2">{page} / {totalPages}</span>
+              <button disabled={page === totalPages} onClick={() => setPage(page + 1)}
+                className="text-xs font-semibold border border-zinc-200 px-3 py-1.5 rounded-lg hover:border-zinc-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">Next →</button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Order detail drawer */}
+      {drawer && (
+        <OrderDrawer order={drawer} token={token}
+          onClose={() => setDrawer(null)}
+          onUpdated={handleUpdated} />
+      )}
     </div>
   );
 }

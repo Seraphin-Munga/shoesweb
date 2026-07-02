@@ -1,14 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { subscribeNewsletter } from "../lib/api";
 
 export default function Newsletter() {
-  const [email, setEmail]       = useState("");
+  const [email, setEmail]         = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [error, setError]         = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) setSubmitted(true);
+    if (!email.trim()) return;
+    setLoading(true);
+    setError("");
+    try {
+      await subscribeNewsletter(email.trim());
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setError(msg.includes("already subscribed") ? "You're already on the list!" : msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,24 +51,25 @@ export default function Newsletter() {
             <p className="text-zinc-500 text-sm">Check your inbox for a welcome gift from STRYDE.</p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              required
-              className="flex-1 bg-white/8 border border-white/15 focus:border-white/40 rounded-full px-5 py-3.5 text-white placeholder-zinc-600 text-sm outline-none transition-all duration-200"
-            />
-            <button type="submit"
-              className="flex-shrink-0 bg-white text-zinc-900 font-bold text-sm px-7 py-3.5 rounded-full hover:bg-zinc-100 transition-colors whitespace-nowrap">
-              Subscribe
-            </button>
-          </form>
-        )}
-
-        {!submitted && (
-          <p className="text-zinc-700 text-xs mt-4">No spam · Unsubscribe anytime · 50,000+ subscribers</p>
+          <>
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                placeholder="Your email address"
+                required
+                disabled={loading}
+                className="flex-1 bg-white/8 border border-white/15 focus:border-white/40 rounded-full px-5 py-3.5 text-white placeholder-zinc-600 text-sm outline-none transition-all duration-200 disabled:opacity-60"
+              />
+              <button type="submit" disabled={loading}
+                className="flex-shrink-0 bg-white text-zinc-900 font-bold text-sm px-7 py-3.5 rounded-full hover:bg-zinc-100 transition-colors whitespace-nowrap disabled:opacity-60">
+                {loading ? "Subscribing…" : "Subscribe"}
+              </button>
+            </form>
+            {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
+            <p className="text-zinc-700 text-xs mt-4">No spam · Unsubscribe anytime · 50,000+ subscribers</p>
+          </>
         )}
       </div>
     </section>

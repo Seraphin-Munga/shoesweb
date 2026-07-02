@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
+import ProtectedRoute from "../components/ProtectedRoute";
+import { formatZar, toZar } from "../lib/currency";
 
-function ShoeThumb({ bgColor }: { bgColor: string }) {
+function ShoeThumb() {
   return (
-    <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" className="w-full h-full" aria-hidden="true">
+    <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" className="w-full h-full p-3" aria-hidden="true">
       <ellipse cx="140" cy="148" rx="115" ry="10" fill="rgba(0,0,0,0.05)" />
       <path d="M28 118 C24 108 24 88 38 80 L88 70 C108 65 120 56 124 42 C128 30 138 22 156 22 L182 22 C198 22 204 34 201 48 L198 60 L226 60 C250 60 266 74 270 96 L272 110 C274 122 268 130 252 132 L42 134 Z" fill="#1a1a1a" />
       <path d="M28 118 L252 132 L256 140 Q260 150 242 152 L48 152 Q32 152 28 142 Z" fill="#2d2d2d" />
@@ -20,11 +23,12 @@ function ShoeThumb({ bgColor }: { bgColor: string }) {
 export default function CartPage() {
   const { items, count, subtotal, removeItem, updateQty, clearCart } = useCart();
 
-  const shipping = subtotal >= 150 ? 0 : 12.99;
-  const total    = subtotal + shipping;
+  const subtotalZar = toZar(subtotal);
+  const shippingZar = subtotalZar >= 2775 ? 0 : toZar(12.99); // R2775 ≈ $150
+  const totalZar    = subtotalZar + shippingZar;
 
   return (
-    <>
+    <ProtectedRoute>
       <Navbar />
       <main className="min-h-screen bg-white pt-16">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
@@ -56,7 +60,7 @@ export default function CartPage() {
               </div>
               <h2 className="text-xl font-bold text-zinc-900 mb-2">Your cart is empty</h2>
               <p className="text-zinc-400 text-sm mb-8">Looks like you haven&apos;t added anything yet.</p>
-              <Link href="/#new-arrivals"
+              <Link href="/products"
                 className="bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors">
                 Start Shopping
               </Link>
@@ -76,11 +80,19 @@ export default function CartPage() {
 
                       {/* Thumbnail */}
                       <Link href={`/product/${item.product.id}`}
-                        className="flex-shrink-0 w-28 h-20 rounded-xl overflow-hidden flex items-center justify-center"
+                        className="relative flex-shrink-0 w-28 h-20 rounded-xl overflow-hidden"
                         style={{ backgroundColor: item.product.bgColor }}>
-                        <div className="w-20">
-                          <ShoeThumb bgColor={item.product.bgColor} />
-                        </div>
+                        {item.product.imageUrls?.[0] ? (
+                          <Image
+                            src={item.product.imageUrls[0]}
+                            alt={item.product.name}
+                            fill
+                            sizes="112px"
+                            className="object-cover"
+                          />
+                        ) : (
+                          <ShoeThumb />
+                        )}
                       </Link>
 
                       {/* Info */}
@@ -101,7 +113,7 @@ export default function CartPage() {
                             </div>
                           </div>
                           <span className="text-sm font-black text-zinc-900 flex-shrink-0">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            {formatZar(item.product.price * item.quantity)}
                           </span>
                         </div>
 
@@ -136,7 +148,7 @@ export default function CartPage() {
                 })}
 
                 {/* Continue shopping */}
-                <Link href="/#new-arrivals"
+                <Link href="/products"
                   className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 transition-colors mt-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
@@ -153,17 +165,17 @@ export default function CartPage() {
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between text-sm">
                       <span className="text-zinc-500">Subtotal ({count} items)</span>
-                      <span className="font-semibold text-zinc-900">${subtotal.toFixed(2)}</span>
+                      <span className="font-semibold text-zinc-900">{formatZar(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-zinc-500">Shipping</span>
-                      <span className={`font-semibold ${shipping === 0 ? "text-green-600" : "text-zinc-900"}`}>
-                        {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                      <span className={`font-semibold ${shippingZar === 0 ? "text-green-600" : "text-zinc-900"}`}>
+                        {shippingZar === 0 ? "Free" : `R ${shippingZar.toFixed(2)}`}
                       </span>
                     </div>
-                    {shipping > 0 && (
+                    {shippingZar > 0 && (
                       <p className="text-[11px] text-zinc-400">
-                        Add ${(150 - subtotal).toFixed(2)} more for free shipping
+                        Add {formatZar((2775 - subtotalZar) / 18.5)} more for free shipping
                       </p>
                     )}
                   </div>
@@ -180,7 +192,7 @@ export default function CartPage() {
                   <div className="border-t border-zinc-200 pt-5 mb-6">
                     <div className="flex justify-between">
                       <span className="font-black text-zinc-900">Total</span>
-                      <span className="font-black text-xl text-zinc-900">${total.toFixed(2)}</span>
+                      <span className="font-black text-xl text-zinc-900">R {totalZar.toFixed(2)}</span>
                     </div>
                     <p className="text-[11px] text-zinc-400 mt-1">Taxes calculated at checkout</p>
                   </div>
@@ -209,6 +221,6 @@ export default function CartPage() {
         </div>
       </main>
       <Footer />
-    </>
+    </ProtectedRoute>
   );
 }

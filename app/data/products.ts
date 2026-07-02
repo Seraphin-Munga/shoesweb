@@ -13,6 +13,7 @@ export type Product = {
   description: string;
   features: string[];
   category: string;
+  imageUrls?: string[];
 };
 
 export const products: Product[] = [

@@ -1,10 +1,18 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import type { Product } from "../data/products";
+
+export type CartProduct = {
+  id: number;
+  name: string;
+  price: number;
+  bgColor: string;
+  colors: { name: string; hex: string }[];
+  imageUrls?: string[];
+};
 
 export type CartItem = {
-  product: Product;
+  product: CartProduct;
   size: number;
   color: string;
   quantity: number;
@@ -14,7 +22,7 @@ type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
-  addItem: (product: Product, size: number, color: string) => void;
+  addItem: (product: CartProduct, size: number, color: string, qty?: number) => void;
   removeItem: (productId: number, size: number, color: string) => void;
   updateQty: (productId: number, size: number, color: string, qty: number) => void;
   clearCart: () => void;
@@ -40,17 +48,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (hydrated) localStorage.setItem(KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const addItem = useCallback((product: Product, size: number, color: string) => {
+  const addItem = useCallback((product: CartProduct, size: number, color: string, qty = 1) => {
     setItems((prev) => {
       const idx = prev.findIndex(
         (i) => i.product.id === product.id && i.size === size && i.color === color
       );
       if (idx !== -1) {
         const next = [...prev];
-        next[idx] = { ...next[idx], quantity: next[idx].quantity + 1 };
+        next[idx] = { ...next[idx], quantity: next[idx].quantity + qty };
         return next;
       }
-      return [...prev, { product, size, color, quantity: 1 }];
+      return [...prev, { product, size, color, quantity: qty }];
     });
   }, []);
 

@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { products }     from "../data/products";
+import Image from "next/image";
 import { useCart }      from "../context/CartContext";
 import { useFavorites } from "../context/FavoritesContext";
+import { useReviews }   from "../context/ReviewsContext";
+import { fetchProducts } from "../lib/api";
+import { formatZar } from "../lib/currency";
+import type { ApiProduct } from "../lib/types";
 
 function ShoeCard() {
   return (
@@ -43,25 +47,46 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export default function ProductGrid() {
-  const { addItem }             = useCart();
-  const { toggle, isFav }       = useFavorites();
-  const [added, setAdded]       = useState<number[]>([]);
+  const { addItem }               = useCart();
+  const { toggle, isFav }         = useFavorites();
+  const { getReviews }            = useReviews();
+  const [added, setAdded]         = useState<number[]>([]);
   const [activeFilter, setActive] = useState("All");
+  const [allProducts, setAll]     = useState<ApiProduct[]>([]);
+  const [loading, setLoading]     = useState(true);
 
-  const filters = ["All", "Running", "Casual", "Trail"];
+  const FILTER_KEYS = ["All", "Running", "Casual", "Trail"];
+
+  useEffect(() => {
+    async function loadAll() {
+      try {
+        const pageSize = 50;
+        const first = await fetchProducts({ sort: "newest", pageSize, page: 1 });
+        let items = [...first.items];
+        const totalPages = Math.ceil(first.total / pageSize);
+        for (let page = 2; page <= totalPages; page++) {
+          const next = await fetchProducts({ sort: "newest", pageSize, page });
+          items = items.concat(next.items);
+        }
+        setAll(items);
+      } catch {
+        /* keep empty */
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadAll();
+  }, []);
 
   const filtered = activeFilter === "All"
-    ? products
-    : products.filter((p) => p.category === activeFilter);
+    ? allProducts
+    : allProducts.filter((p) => p.category === activeFilter);
 
-
-  const quickAdd = (e: React.MouseEvent, id: number) => {
+  const quickAdd = (e: React.MouseEvent, product: ApiProduct) => {
     e.preventDefault();
-    const product = products.find((p) => p.id === id);
-    if (!product) return;
-    addItem(product, product.sizes[0], product.colors[0].name);
-    setAdded((p) => [...p, id]);
-    setTimeout(() => setAdded((p) => p.filter((i) => i !== id)), 2000);
+    addItem(product as any, product.sizes[0] ?? 9, product.colors[0]?.name ?? "Default");
+    setAdded((prev) => [...prev, product.id]);
+    setTimeout(() => setAdded((prev) => prev.filter((i) => i !== product.id)), 2000);
   };
 
   return (
@@ -75,7 +100,7 @@ export default function ProductGrid() {
             <h2 className="text-4xl font-black text-zinc-900 tracking-tight">New Arrivals</h2>
           </div>
           <div className="flex items-center gap-2">
-            {filters.map((f) => (
+            {FILTER_KEYS.map((f) => (
               <button key={f} onClick={() => setActive(f)}
                 className={`text-xs font-semibold px-4 py-2 rounded-full border transition-all duration-200 ${
                   activeFilter === f
@@ -89,12 +114,39 @@ export default function ProductGrid() {
         </div>
 
         {/* Grid */}
+        {loading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-white border border-zinc-100 rounded-2xl overflow-hidden animate-pulse">
+                <div className="h-52 bg-zinc-100" />
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-zinc-100 rounded-full w-3/4" />
+                  <div className="h-3 bg-zinc-100 rounded-full w-1/2" />
+                  <div className="flex justify-between items-center pt-2">
+                    <div className="h-5 bg-zinc-100 rounded-full w-24" />
+                    <div className="h-8 w-8 bg-zinc-100 rounded-xl" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {filtered.map((p) => {
+          {!loading && filtered.map((p) => {
             const inWish    = isFav(p.id);
             const justAdded = added.includes(p.id);
-            const discount  = p.originalPrice
+            const saleDiscount    = p.originalPrice
               ? Math.round((1 - p.price / p.originalPrice) * 100) : null;
+            const activeDiscount  = p.discountPercent ?? null;
+            const displayDiscount = activeDiscount ?? saleDiscount;
+            const displayPrice    = p.discountedPrice ?? p.price;
+            const showStrike      = p.discountedPrice ? p.price : p.originalPrice;
+            const localReviews    = getReviews(p.id);
+            const totalCount      = localReviews.length + p.reviewCount;
+            const displayRating   = localReviews.length > 0
+              ? localReviews.reduce((s, r) => s + r.rating, 0) / localReviews.length
+              : p.rating;
 
             return (
               <article key={p.id}
@@ -103,13 +155,36 @@ export default function ProductGrid() {
                 {/* Clickable image area → detail page */}
                 <Link href={`/product/${p.id}`} className="block">
                   <div className="relative h-52 overflow-hidden" style={{ backgroundColor: p.bgColor }}>
-                    {p.badge && (
-                      <span className="absolute top-3 left-3 z-10 text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-zinc-900 text-white">
-                        {p.badge}{discount ? ` −${discount}%` : ""}
-                      </span>
-                    )}
+                    <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
+                      {!p.isInStock && (
+                        <span className="text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-zinc-400 text-white">
+                          Out of Stock
+                        </span>
+                      )}
+                      {displayDiscount && p.isInStock && (
+                        <span className="text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-red-500 text-white">
+                          {p.discountLabel ?? (p.badge ?? "Sale")} −{displayDiscount}%
+                        </span>
+                      )}
+                      {p.badge && !displayDiscount && p.isInStock && (
+                        <span className="text-[10px] font-bold tracking-wide px-2.5 py-1 rounded-full bg-zinc-900 text-white">
+                          {p.badge}
+                        </span>
+                      )}
+                    </div>
                     <div className="img-zoom absolute inset-0 flex items-center justify-center p-6">
-                      <ShoeCard />
+                      {p.imageUrls[0] ? (
+                        <Image
+                          src={p.imageUrls[0]}
+                          alt={p.name}
+                          fill
+                          unoptimized
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          className="object-contain"
+                        />
+                      ) : (
+                        <ShoeCard />
+                      )}
                     </div>
                   </div>
                 </Link>
@@ -131,8 +206,8 @@ export default function ProductGrid() {
                   </Link>
 
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Stars rating={p.rating} />
-                    <span className="text-zinc-400 text-[11px]">({p.reviews})</span>
+                    <Stars rating={displayRating} />
+                    <span className="text-zinc-400 text-[11px]">({totalCount})</span>
                   </div>
 
                   {/* Sizes preview */}
@@ -151,18 +226,22 @@ export default function ProductGrid() {
                   {/* Price + Quick add */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-zinc-900 font-black text-base">${p.price}</span>
-                      {p.originalPrice && (
-                        <span className="text-zinc-400 text-xs line-through">${p.originalPrice}</span>
+                      <span className={`font-black text-base ${displayDiscount ? "text-red-600" : "text-zinc-900"}`}>
+                        {formatZar(displayPrice)}
+                      </span>
+                      {showStrike && (
+                        <span className="text-zinc-400 text-xs line-through">{formatZar(showStrike)}</span>
                       )}
                     </div>
-                    <button onClick={(e) => quickAdd(e, p.id)}
+                    <button onClick={(e) => quickAdd(e, p)} disabled={!p.isInStock}
                       className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all duration-300 ${
-                        justAdded
+                        !p.isInStock
+                          ? "bg-zinc-100 text-zinc-400 cursor-not-allowed"
+                          : justAdded
                           ? "bg-green-500 text-white"
                           : "bg-zinc-900 text-white hover:bg-zinc-700"
                       }`}>
-                      {justAdded ? "✓" : "+"}
+                      {!p.isInStock ? "—" : justAdded ? "✓" : "+"}
                     </button>
                   </div>
                 </div>
@@ -173,12 +252,13 @@ export default function ProductGrid() {
 
         {/* View all */}
         <div className="flex justify-center mt-12">
-          <button className="btn-outline group inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm font-semibold">
+          <Link href="/products"
+            className="btn-outline group inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-sm font-semibold">
             View All Products
             <svg className="w-4 h-4 arrow-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>
-          </button>
+          </Link>
         </div>
       </div>
     </section>

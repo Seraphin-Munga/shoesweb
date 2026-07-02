@@ -8,11 +8,11 @@ import { useAuth }      from "../context/AuthContext";
 import SearchModal      from "./SearchModal";
 
 const links = [
-  { label: "New Arrivals", href: "/#new-arrivals" },
-  { label: "Men",          href: "/#men" },
-  { label: "Women",        href: "/#women" },
+  { label: "New Arrivals", href: "/products?sort=newest" },
+  { label: "Men",          href: "/products?gender=Men" },
+  { label: "Women",        href: "/products?gender=Women" },
   { label: "All Products", href: "/products" },
-  { label: "Sale",         href: "/#sale" },
+  { label: "Sale",         href: "/products?sale=true" },
 ];
 
 export default function Navbar() {

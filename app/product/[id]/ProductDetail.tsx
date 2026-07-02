@@ -2,11 +2,13 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import type { Product }      from "../../data/products";
+import Image from "next/image";
+import type { ApiProduct }      from "../../lib/types";
 import { useCart }           from "../../context/CartContext";
 import { useFavorites }      from "../../context/FavoritesContext";
 import { useReviews, type Review } from "../../context/ReviewsContext";
 import { useAuth }           from "../../context/AuthContext";
+import { formatZar }  from "../../lib/currency";
 
 /* ─── SVG ─────────────────────────────────────────────────── */
 function ShoeDisplay({ bgColor }: { bgColor: string }) {
@@ -364,25 +366,37 @@ function ReviewsSection({ productId }: { productId: number }) {
 /* ─── Main component ───────────────────────────────────────── */
 type TabKey = "description" | "details" | "reviews";
 
-export default function ProductDetail({ product, related }: { product: Product; related: Product[] }) {
+export default function ProductDetail({ product, related }: { product: ApiProduct; related: ApiProduct[] }) {
   const { addItem }             = useCart();
   const { toggle, isFav }       = useFavorites();
   const { getReviews }          = useReviews();
   const [selectedSize,  setSize]  = useState<number | null>(null);
-  const [selectedColor, setColor] = useState(product.colors[0].name);
+  const [selectedColor, setColor] = useState(product?.colors?.[0]?.name ?? "");
+  const imageUrls: string[] = (product as any).imageUrls ?? [];
+  const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty]             = useState(1);
   const [added, setAdded]         = useState(false);
   const [activeTab, setTab]       = useState<TabKey>("description");
 
-  const liveReviews  = getReviews(product.id);
-  const reviewCount  = liveReviews.length || product.reviews;
+  if (!product) return null;
 
-  const discount = product.originalPrice
+  const liveReviews  = getReviews(product.id);
+  const reviewCount  = liveReviews.length || product.reviewCount || 0;
+
+  const saleDiscount    = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100) : null;
+  const activeDiscount  = product.discountPercent ?? product.activeDiscount?.percent ?? null;
+  const displayDiscount = activeDiscount ?? saleDiscount;
+  const displayPrice    = product.discountedPrice ?? product.activeDiscount?.discountedPrice ?? product.price;
+  const showStrike      = product.discountedPrice || product.activeDiscount
+    ? product.price
+    : product.originalPrice;
+  const discountLabel   = product.discountLabel ?? product.activeDiscount?.label;
+  const saveAmount      = showStrike ? showStrike - displayPrice : 0;
 
   const handleAdd = () => {
     if (!selectedSize) return;
-    for (let i = 0; i < qty; i++) addItem(product, selectedSize, selectedColor);
+    addItem(product, selectedSize, selectedColor, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };
@@ -405,14 +419,27 @@ export default function ProductDetail({ product, related }: { product: Product; 
         <div className="grid lg:grid-cols-2 gap-16">
 
           {/* Left – shoe visual */}
-          <div className="space-y-4">
+          <div className="space-y-3">
+            {/* Main image */}
             <div className="relative rounded-3xl overflow-hidden flex items-center justify-center p-10"
               style={{ backgroundColor: product.bgColor, minHeight: 420 }}>
-              {product.badge && (
-                <span className="absolute top-5 left-5 bg-zinc-900 text-white text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-full">
-                  {product.badge}{discount ? ` −${discount}%` : ""}
-                </span>
-              )}
+              <div className="absolute top-5 left-5 z-10 flex flex-col gap-1">
+                {!product.isInStock && (
+                  <span className="text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-full bg-zinc-400 text-white">
+                    Out of Stock
+                  </span>
+                )}
+                {displayDiscount && product.isInStock && (
+                  <span className="text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-full bg-red-500 text-white">
+                    {discountLabel ?? (product.badge ?? "Sale")} −{displayDiscount}%
+                  </span>
+                )}
+                {product.badge && !displayDiscount && product.isInStock && (
+                  <span className="text-[11px] font-bold tracking-wide px-3 py-1.5 rounded-full bg-zinc-900 text-white">
+                    {product.badge}
+                  </span>
+                )}
+              </div>
               <button onClick={() => toggle(product.id)}
                 className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors">
                 <svg className={`w-5 h-5 transition-colors ${isFav(product.id) ? "text-red-500 fill-red-500" : "text-zinc-400"}`}
@@ -421,26 +448,75 @@ export default function ProductDetail({ product, related }: { product: Product; 
                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               </button>
+
+              {/* Prev / Next arrows (only when >1 image) */}
+              {imageUrls.length > 1 && (
+                <>
+                  <button onClick={() => setActiveImg((i) => (i - 1 + imageUrls.length) % imageUrls.length)}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10">
+                    <svg className="w-4 h-4 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+                  <button onClick={() => setActiveImg((i) => (i + 1) % imageUrls.length)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-sm hover:bg-white transition-colors z-10">
+                    <svg className="w-4 h-4 text-zinc-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </>
+              )}
+
               <div className="w-full max-w-sm">
-                <ShoeDisplay bgColor={product.bgColor} />
+                {imageUrls.length > 0 ? (
+                  <div className="relative w-full" style={{ aspectRatio: "1 / 1" }}>
+                    <Image
+                      key={activeImg}
+                      src={imageUrls[activeImg]}
+                      alt={`${product.name} — photo ${activeImg + 1}`}
+                      fill
+                      unoptimized
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  <ShoeDisplay bgColor={product.bgColor} />
+                )}
               </div>
             </div>
 
-            {/* Color thumbnails */}
-            <div className="grid grid-cols-4 gap-3">
-              {product.colors.map((c) => (
-                <button key={c.name} onClick={() => setColor(c.name)}
-                  className={`rounded-2xl h-16 border-2 transition-all duration-200 ${
-                    selectedColor === c.name ? "border-zinc-900 scale-95" : "border-transparent hover:border-zinc-300"
-                  }`}
-                  style={{ backgroundColor: product.bgColor }} title={c.name}>
-                  <span className="flex items-center justify-center h-full gap-1.5">
-                    <span className="w-4 h-4 rounded-full border border-white/50 shadow-sm" style={{ backgroundColor: c.hex }} />
-                    <span className="text-[10px] font-medium text-zinc-500">{c.name}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
+            {/* Image thumbnails */}
+            {imageUrls.length > 1 && (
+              <div className="flex gap-2">
+                {imageUrls.map((url, i) => (
+                  <button key={i} onClick={() => setActiveImg(i)}
+                    className={`relative flex-1 rounded-xl overflow-hidden border-2 transition-all ${
+                      activeImg === i ? "border-zinc-900" : "border-transparent hover:border-zinc-300"
+                    }`}
+                    style={{ aspectRatio: "1 / 1", backgroundColor: product.bgColor }}>
+                    <Image src={url} alt={`view ${i + 1}`} fill unoptimized className="object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Color swatches */}
+            {(product.colors ?? []).length > 0 && (
+              <div className="grid grid-cols-4 gap-3">
+                {(product.colors ?? []).map((c) => (
+                  <button key={c.name} onClick={() => setColor(c.name)}
+                    className={`rounded-2xl h-16 border-2 transition-all duration-200 ${
+                      selectedColor === c.name ? "border-zinc-900 scale-95" : "border-transparent hover:border-zinc-300"
+                    }`}
+                    style={{ backgroundColor: product.bgColor }} title={c.name}>
+                    <span className="flex items-center justify-center h-full gap-1.5">
+                      <span className="w-4 h-4 rounded-full border border-white/50 shadow-sm" style={{ backgroundColor: c.hex }} />
+                      <span className="text-[10px] font-medium text-zinc-500">{c.name}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right – info */}
@@ -456,12 +532,16 @@ export default function ProductDetail({ product, related }: { product: Product; 
             </button>
 
             {/* Price */}
-            <div className="flex items-baseline gap-3 mb-8">
-              <span className="text-3xl font-black text-zinc-900">${product.price}</span>
-              {product.originalPrice && (
+            <div className="flex items-baseline gap-3 mb-8 flex-wrap">
+              <span className={`text-3xl font-black ${displayDiscount ? "text-red-600" : "text-zinc-900"}`}>
+                {formatZar(displayPrice)}
+              </span>
+              {showStrike && (
                 <>
-                  <span className="text-xl text-zinc-400 line-through">${product.originalPrice}</span>
-                  <span className="text-sm font-bold text-green-600">Save ${(product.originalPrice - product.price).toFixed(2)}</span>
+                  <span className="text-xl text-zinc-400 line-through">{formatZar(showStrike)}</span>
+                  {saveAmount > 0 && (
+                    <span className="text-sm font-bold text-green-600">Save {formatZar(saveAmount)}</span>
+                  )}
                 </>
               )}
             </div>
@@ -473,7 +553,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
                 <span className="text-sm text-zinc-500">{selectedColor}</span>
               </div>
               <div className="flex gap-2">
-                {product.colors.map((c) => (
+                {(product.colors ?? []).map((c) => (
                   <button key={c.name} onClick={() => setColor(c.name)} title={c.name}
                     className={`w-8 h-8 rounded-full border-2 transition-all duration-200 ${
                       selectedColor === c.name ? "border-zinc-900 scale-110" : "border-zinc-200 hover:border-zinc-400"
@@ -490,7 +570,7 @@ export default function ProductDetail({ product, related }: { product: Product; 
                 <button className="text-xs text-zinc-400 underline hover:text-zinc-700 transition-colors">Size guide</button>
               </div>
               <div className="grid grid-cols-6 gap-2">
-                {product.sizes.map((s) => (
+                {(product.sizes ?? []).map((s) => (
                   <button key={s} onClick={() => setSize(s)}
                     className={`py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200 ${
                       selectedSize === s
@@ -579,12 +659,15 @@ export default function ProductDetail({ product, related }: { product: Product; 
           </div>
 
           {activeTab === "description" && (
-            <p className="text-zinc-600 leading-relaxed max-w-2xl text-[15px]">{product.description}</p>
+            <div
+              className="text-zinc-600 leading-relaxed max-w-2xl text-[15px] prose prose-sm prose-zinc [&_ul]:list-disc [&_ol]:list-decimal [&_a]:text-blue-600"
+              dangerouslySetInnerHTML={{ __html: product.description ?? "" }}
+            />
           )}
 
           {activeTab === "details" && (
             <ul className="space-y-3 max-w-2xl">
-              {product.features.map((f) => (
+              {(product.features ?? []).map((f) => (
                 <li key={f} className="flex items-start gap-3 text-[15px] text-zinc-600">
                   <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-zinc-400 flex-shrink-0" />
                   {f}
@@ -603,20 +686,47 @@ export default function ProductDetail({ product, related }: { product: Product; 
           <div className="mt-20 border-t border-zinc-100 pt-12">
             <h2 className="text-2xl font-black text-zinc-900 mb-8">You May Also Like</h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {related.map((p) => (
+              {related.map((p) => {
+                const pSaleDiscount = p.originalPrice
+                  ? Math.round((1 - p.price / p.originalPrice) * 100) : null;
+                const pActiveDiscount = p.discountPercent ?? p.activeDiscount?.percent ?? null;
+                const pDisplayDiscount = pActiveDiscount ?? pSaleDiscount;
+                const pDisplayPrice = p.discountedPrice ?? p.activeDiscount?.discountedPrice ?? p.price;
+                const pShowStrike = p.discountedPrice || p.activeDiscount ? p.price : p.originalPrice;
+
+                return (
                 <Link key={p.id} href={`/product/${p.id}`}
                   className="group bg-white border border-zinc-100 hover:border-zinc-300 rounded-2xl overflow-hidden transition-all duration-300 card-lift">
-                  <div className="h-40 flex items-center justify-center" style={{ backgroundColor: p.bgColor }}>
+                  <div className="relative h-40 flex items-center justify-center" style={{ backgroundColor: p.bgColor }}>
+                    {pDisplayDiscount && p.isInStock && (
+                      <span className="absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500 text-white">
+                        −{pDisplayDiscount}%
+                      </span>
+                    )}
                     <div className="w-32">
-                      <ShoeDisplay bgColor={p.bgColor} />
+                      {p.imageUrls[0] ? (
+                        <div className="relative w-full" style={{ aspectRatio: "1 / 1" }}>
+                          <Image src={p.imageUrls[0]} alt={p.name} fill unoptimized className="object-contain" />
+                        </div>
+                      ) : (
+                        <ShoeDisplay bgColor={p.bgColor} />
+                      )}
                     </div>
                   </div>
                   <div className="p-4">
                     <div className="text-sm font-bold text-zinc-900 group-hover:text-zinc-600 transition-colors">{p.name}</div>
-                    <div className="text-sm font-black text-zinc-900 mt-1">${p.price}</div>
+                    <div className="flex items-baseline gap-2 mt-1">
+                      <span className={`text-sm font-black ${pDisplayDiscount ? "text-red-600" : "text-zinc-900"}`}>
+                        {formatZar(pDisplayPrice)}
+                      </span>
+                      {pShowStrike && (
+                        <span className="text-xs text-zinc-400 line-through">{formatZar(pShowStrike)}</span>
+                      )}
+                    </div>
                   </div>
                 </Link>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

@@ -1,68 +1,24 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCart } from "../../context/CartContext";
-import { useAuth } from "../../context/AuthContext";
-import { createOrder } from "../../lib/api";
 
 function SuccessContent() {
-  const params    = useSearchParams();
-  const payment   = params.get("payment");
+  const params   = useSearchParams();
+  const orderId  = params.get("orderId");
   const { clearCart } = useCart();
-  const { token } = useAuth();
-  const ran       = useRef(false);
-  const [orderNum, setOrderNum] = useState<string | null>(null);
-  const [error,    setError]    = useState<string | null>(null);
+  const ran      = useRef(false);
 
   useEffect(() => {
     if (ran.current) return;
     ran.current = true;
-
-    (async () => {
-      try {
-        const raw = sessionStorage.getItem("stryde_checkout_data");
-        const checkoutId = sessionStorage.getItem("stryde_yoco_checkout_id") ?? "";
-
-        if (raw) {
-          const data = JSON.parse(raw) as {
-            customerName: string;
-            customerEmail: string;
-            shippingAddress: string;
-            shippingCity: string;
-            shippingCountry: string;
-            paymentMethod: "yoco";
-            promoCode?: string;
-            items: { productId: number; productName: string; quantity: number; unitPrice: number; size: number; color: string }[];
-          };
-
-          const order = await createOrder({
-            customerName:     data.customerName,
-            customerEmail:    data.customerEmail,
-            shippingAddress:  data.shippingAddress,
-            shippingCity:     data.shippingCity,
-            shippingCountry:  data.shippingCountry,
-            paymentMethod:    "yoco",
-            paymentReference: checkoutId || data.promoCode,
-            paymentConfirmed: true,
-            items:            data.items,
-          }, token ?? undefined);
-
-          setOrderNum(String(order.id));
-          sessionStorage.removeItem("stryde_checkout_data");
-          sessionStorage.removeItem("stryde_yoco_checkout_id");
-          sessionStorage.removeItem("stryde_promo");
-        }
-      } catch {
-        setError("Order saved — check your email or view your orders.");
-      } finally {
-        clearCart();
-      }
-    })();
-  }, [clearCart, token]);
+    clearCart();
+    sessionStorage.removeItem("stryde_promo");
+  }, [clearCart]);
 
   return (
     <>
@@ -70,7 +26,6 @@ function SuccessContent() {
       <main className="min-h-screen bg-white pt-16 flex items-center justify-center">
         <div className="max-w-md w-full mx-auto px-6 py-20 text-center">
 
-          {/* Success icon */}
           <div className="w-20 h-20 rounded-full bg-green-50 border border-green-100 flex items-center justify-center mx-auto mb-6">
             <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -83,15 +38,9 @@ function SuccessContent() {
             <span className="font-semibold text-zinc-600">Yoco</span>.
           </p>
 
-          {error && (
-            <p className="text-amber-600 text-sm mb-4 bg-amber-50 border border-amber-100 px-4 py-3 rounded-xl">
-              {error}
-            </p>
-          )}
-
-          {orderNum && (
+          {orderId && (
             <p className="text-zinc-400 text-sm mb-6">
-              Order reference: <span className="font-bold text-zinc-900">#{orderNum}</span>
+              Order reference: <span className="font-bold text-zinc-900">#{orderId}</span>
             </p>
           )}
 
@@ -100,8 +49,8 @@ function SuccessContent() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            {orderNum ? (
-              <Link href={`/orders/${orderNum}`}
+            {orderId ? (
+              <Link href={`/orders/${orderId}`}
                 className="bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}

@@ -8,6 +8,7 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { toZar, formatZarAmount } from "../lib/currency";
+import { createOrder } from "../lib/api";
 import type { ValidatePromoResponse } from "../lib/types";
 
 type PaymentMethod = "yoco";
@@ -69,15 +70,15 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      // Save order data to sessionStorage — order is created only after payment succeeds
-      sessionStorage.setItem("stryde_checkout_data", JSON.stringify({
+      // Step 1: create the order (Pending, not yet paid)
+      const order = await createOrder({
         customerName:    `${shipping.firstName} ${shipping.lastName}`,
         customerEmail:   shipping.email,
         shippingAddress: shipping.address,
         shippingCity:    shipping.city,
         shippingCountry: shipping.country,
         paymentMethod:   method,
-        promoCode:       promo?.valid ? promo.code : undefined,
+        paymentConfirmed: false,
         items: items.map((i) => ({
           productId:   i.product.id,
           productName: i.product.name,
@@ -86,16 +87,17 @@ export default function CheckoutPage() {
           size:        i.size,
           color:       i.color,
         })),
-      }));
+      }, token ?? undefined);
 
-      await redirectToYoco();
+      // Step 2: redirect to Yoco with the real order ID
+      await redirectToYoco(order.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
     }
   }
 
-  async function redirectToYoco() {
+  async function redirectToYoco(orderId: number) {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api";
     const headers: HeadersInit = { "Content-Type": "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
@@ -103,14 +105,11 @@ export default function CheckoutPage() {
     const res = await fetch(`${apiUrl}/payments/yoco/checkout`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ orderId: 0, amountZar: totalZar }),
+      body: JSON.stringify({ orderId, amountZar: totalZar }),
     });
 
     const json = await res.json();
     if (!json.success) throw new Error(json.message ?? "Could not initiate Yoco checkout.");
-
-    // Save the Yoco checkout ID so the success page can use it as payment reference
-    sessionStorage.setItem("stryde_yoco_checkout_id", json.data.id ?? "");
 
     window.location.href = json.data.redirectUrl;
   }

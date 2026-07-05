@@ -2,6 +2,13 @@
   "name": "shoesweb",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": "22.x"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["sharp", "unrs-resolver"]
+  },
   "scripts": {
     "dev": "next dev --turbo -p 3000",
     "build": "next build",

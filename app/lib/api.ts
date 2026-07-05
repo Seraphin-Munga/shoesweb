@@ -7,7 +7,7 @@ import type {
   ApiUserOrder,
 } from "./types";
 
-export const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
+export const BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api";
 
 async function get<T>(path: string, token?: string): Promise<T> {
   const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};

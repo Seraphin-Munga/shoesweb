@@ -1,9 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Script from "next/script";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -12,21 +10,6 @@ import { useAuth } from "../context/AuthContext";
 import { createOrder } from "../lib/api";
 import { toZar, formatZarAmount } from "../lib/currency";
 import type { ValidatePromoResponse } from "../lib/types";
-
-// Yoco SDK global type (injected by the CDN script)
-declare global {
-  interface Window {
-    YocoSDK: new (opts: { publicKey: string }) => {
-      showPopup(opts: {
-        amountInCents: number;
-        currency: string;
-        name?: string;
-        description?: string;
-        callback: (result: { id?: string; error?: { message: string } }) => void;
-      }): void;
-    };
-  }
-}
 
 type PaymentMethod = "payfast" | "yoco";
 
@@ -42,8 +25,7 @@ type ShippingForm = {
 const COUNTRIES = ["South Africa", "Zimbabwe", "Botswana", "Namibia", "Mozambique", "Zambia", "Other"];
 
 export default function CheckoutPage() {
-  const router = useRouter();
-  const { items, subtotal, clearCart } = useCart();
+  const { items, subtotal } = useCart();
   const { user, token } = useAuth();
   const [promo, setPromo] = useState<ValidatePromoResponse | null>(null);
 
@@ -80,7 +62,6 @@ export default function CheckoutPage() {
     return Math.min(promo.discountValue!, subtotalZar);
   })();
   const totalZar     = subtotalZar + shippingZar - discountZar;
-  const totalCents   = Math.round(totalZar * 100);
 
   const field = (key: keyof ShippingForm) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setShipping((prev) => ({ ...prev, [key]: e.target.value }));
@@ -160,59 +141,20 @@ export default function CheckoutPage() {
   }
 
   async function redirectToYoco(orderId: number) {
-    return new Promise<void>((resolve, reject) => {
-      const publicKey = process.env.NEXT_PUBLIC_YOCO_PUBLIC_KEY ?? "";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api";
+    const headers: HeadersInit = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      if (!window.YocoSDK) {
-        reject(new Error("Yoco payment is not available. Please refresh and try again."));
-        return;
-      }
-
-      if (!publicKey) {
-        reject(new Error("Yoco public key is not configured."));
-        return;
-      }
-
-      const yoco = new window.YocoSDK({ publicKey });
-      yoco.showPopup({
-        amountInCents: totalCents,
-        currency:      "ZAR",
-        name:          "STRYDE",
-        description:   `Order #${orderId}`,
-        callback: async (result) => {
-          if (result.error) {
-            reject(new Error(result.error.message ?? "Payment cancelled."));
-            return;
-          }
-
-          // Token received — charge on the backend
-          try {
-            const headers: HeadersInit = { "Content-Type": "application/json" };
-            if (token) headers["Authorization"] = `Bearer ${token}`;
-
-            const res = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api"}/payments/yoco/charge`,
-              {
-                method:  "POST",
-                headers,
-                body: JSON.stringify({ orderId, token: result.id, amountZar: totalZar }),
-              }
-            );
-
-            const json = await res.json();
-            if (!json.success) throw new Error(json.message ?? "Payment could not be processed.");
-
-            // Success — clear cart and redirect
-            clearCart();
-            sessionStorage.removeItem("stryde_promo");
-            window.location.href = `/checkout/success?payment=yoco&orderId=${orderId}`;
-            resolve();
-          } catch (err) {
-            reject(err);
-          }
-        },
-      });
+    const res = await fetch(`${apiUrl}/payments/yoco/checkout`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ orderId, amountZar: totalZar }),
     });
+
+    const json = await res.json();
+    if (!json.success) throw new Error(json.message ?? "Could not initiate Yoco checkout.");
+
+    window.location.href = json.data.redirectUrl;
   }
 
   if (items.length === 0) {
@@ -234,8 +176,6 @@ export default function CheckoutPage() {
 
   return (
     <ProtectedRoute>
-      {/* Yoco Popup SDK — loaded after hydration, before any user interaction */}
-      <Script src="https://js.yoco.com/sdk/v1/yoco-sdk-web.js" strategy="afterInteractive" />
       <Navbar />
       <main className="min-h-screen bg-white pt-16">
         <div className="max-w-6xl mx-auto px-6 lg:px-8 py-12">

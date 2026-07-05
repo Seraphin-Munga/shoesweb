@@ -6,19 +6,34 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
 
 function SuccessContent() {
   const params   = useSearchParams();
   const orderId  = params.get("orderId");
   const { clearCart } = useCart();
+  const { token } = useAuth();
   const ran      = useRef(false);
 
   useEffect(() => {
     if (ran.current) return;
     ran.current = true;
-    clearCart();
-    sessionStorage.removeItem("stryde_promo");
-  }, [clearCart]);
+
+    (async () => {
+      if (orderId) {
+        try {
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api";
+          const headers: HeadersInit = { "Content-Type": "application/json" };
+          if (token) headers["Authorization"] = `Bearer ${token}`;
+          await fetch(`${apiUrl}/orders/${orderId}/confirm-payment`, { method: "POST", headers });
+        } catch {
+          // non-blocking — order is already created
+        }
+      }
+      clearCart();
+      sessionStorage.removeItem("stryde_promo");
+    })();
+  }, [clearCart, orderId, token]);
 
   return (
     <>

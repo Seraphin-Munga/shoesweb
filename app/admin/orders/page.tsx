@@ -102,6 +102,7 @@ function OrderDrawer({ order, token, onClose, onUpdated }: {
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Customer</p>
             <p className="font-bold text-zinc-900 text-sm">{order.customerName}</p>
             <p className="text-xs text-zinc-500">{order.customerEmail}</p>
+            {order.phoneNumber && <p className="text-xs text-zinc-500">{order.phoneNumber}</p>}
             {order.shippingAddress && <p className="text-xs text-zinc-400 mt-1">{order.shippingAddress}</p>}
             {(order.shippingCity || order.shippingCountry) && (
               <p className="text-xs text-zinc-400">{[order.shippingCity, order.shippingCountry].filter(Boolean).join(", ")}</p>

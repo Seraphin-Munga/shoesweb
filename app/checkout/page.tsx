@@ -17,6 +17,7 @@ type ShippingForm = {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string;
   address: string;
   city: string;
   country: string;
@@ -40,6 +41,7 @@ export default function CheckoutPage() {
     firstName: user?.firstName ?? "",
     lastName:  user?.lastName  ?? "",
     email:     user?.email     ?? "",
+    phone:     "",
     address:   "",
     city:      "",
     country:   "South Africa",
@@ -74,6 +76,7 @@ export default function CheckoutPage() {
       const order = await createOrder({
         customerName:    `${shipping.firstName} ${shipping.lastName}`,
         customerEmail:   shipping.email,
+        phoneNumber:     shipping.phone,
         shippingAddress: shipping.address,
         shippingCity:    shipping.city,
         shippingCountry: shipping.country,
@@ -171,6 +174,11 @@ export default function CheckoutPage() {
                     <div className="col-span-2">
                       <label className="block text-xs font-semibold text-zinc-500 mb-1.5">Email Address</label>
                       <input type="email" value={shipping.email} onChange={field("email")} required
+                        className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-zinc-900 transition-colors" />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-semibold text-zinc-500 mb-1.5">Phone Number</label>
+                      <input type="tel" value={shipping.phone} onChange={field("phone")} required placeholder="+27 81 234 5678"
                         className="w-full border border-zinc-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-zinc-900 transition-colors" />
                     </div>
                     <div className="col-span-2">

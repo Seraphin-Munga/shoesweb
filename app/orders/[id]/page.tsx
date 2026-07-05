@@ -251,6 +251,7 @@ export default function OrderDetailPage() {
                   <h2 className="text-sm font-bold text-zinc-900 mb-3">Shipping To</h2>
                   <div className="text-sm text-zinc-600 space-y-0.5">
                     <p className="font-semibold text-zinc-900">{order.shippingName}</p>
+                    {order.phoneNumber && <p className="text-zinc-500">{order.phoneNumber}</p>}
                     <p>{order.shippingAddress}</p>
                     <p>{order.shippingCity}</p>
                     <p>{order.shippingCountry}</p>

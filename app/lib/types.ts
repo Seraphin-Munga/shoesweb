@@ -109,6 +109,7 @@ export type ApiOrder = {
   orderNumber: string;
   customerName: string;
   customerEmail: string;
+  phoneNumber?: string;
   items: ApiOrderItem[];
   totalAmount: number;
   status: ApiOrderStatus;
@@ -308,6 +309,7 @@ export type CreateOrderItem = {
 export type CreateOrderPayload = {
   customerName: string;
   customerEmail: string;
+  phoneNumber?: string;
   shippingAddress: string;
   shippingCity: string;
   shippingCountry: string;
@@ -354,6 +356,7 @@ export type ApiUserOrder = {
   userId: string;
   customerName: string;
   customerEmail: string;
+  phoneNumber?: string;
   status: ApiOrderStatus;
   paymentMethod: string;
   paymentReference: string;

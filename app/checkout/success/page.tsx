@@ -6,26 +6,63 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCart } from "../../context/CartContext";
+import { useAuth } from "../../context/AuthContext";
+import { createOrder } from "../../lib/api";
 
 function SuccessContent() {
-  const params   = useSearchParams();
-  const payment  = params.get("payment");   // "payfast" | "yoco"
-  const orderId  = params.get("orderId");   // present for yoco
+  const params    = useSearchParams();
+  const payment   = params.get("payment");
   const { clearCart } = useCart();
-  const cleared  = useRef(false);
+  const { token } = useAuth();
+  const ran       = useRef(false);
   const [orderNum, setOrderNum] = useState<string | null>(null);
+  const [error,    setError]    = useState<string | null>(null);
 
   useEffect(() => {
-    if (cleared.current) return;
-    cleared.current = true;
+    if (ran.current) return;
+    ran.current = true;
 
-    // Read the pending order ID that was saved before redirect
-    const pendingId = sessionStorage.getItem("stryde_pending_order") ?? orderId;
-    if (pendingId) setOrderNum(pendingId);
-    sessionStorage.removeItem("stryde_pending_order");
+    (async () => {
+      try {
+        const raw = sessionStorage.getItem("stryde_checkout_data");
+        const checkoutId = sessionStorage.getItem("stryde_yoco_checkout_id") ?? "";
 
-    clearCart();
-  }, [clearCart, orderId]);
+        if (raw) {
+          const data = JSON.parse(raw) as {
+            customerName: string;
+            customerEmail: string;
+            shippingAddress: string;
+            shippingCity: string;
+            shippingCountry: string;
+            paymentMethod: "yoco";
+            promoCode?: string;
+            items: { productId: number; productName: string; quantity: number; unitPrice: number; size: number; color: string }[];
+          };
+
+          const order = await createOrder({
+            customerName:     data.customerName,
+            customerEmail:    data.customerEmail,
+            shippingAddress:  data.shippingAddress,
+            shippingCity:     data.shippingCity,
+            shippingCountry:  data.shippingCountry,
+            paymentMethod:    "yoco",
+            paymentReference: checkoutId || data.promoCode,
+            paymentConfirmed: true,
+            items:            data.items,
+          }, token ?? undefined);
+
+          setOrderNum(String(order.id));
+          sessionStorage.removeItem("stryde_checkout_data");
+          sessionStorage.removeItem("stryde_yoco_checkout_id");
+          sessionStorage.removeItem("stryde_promo");
+        }
+      } catch {
+        setError("Order saved — check your email or view your orders.");
+      } finally {
+        clearCart();
+      }
+    })();
+  }, [clearCart, token]);
 
   return (
     <>
@@ -43,8 +80,14 @@ function SuccessContent() {
           <h1 className="text-3xl font-black text-zinc-900 tracking-tight mb-3">Payment Successful!</h1>
           <p className="text-zinc-400 text-sm mb-2">
             Thank you for your order. We&apos;ve received your payment via{" "}
-            <span className="font-semibold text-zinc-600">{payment === "payfast" ? "PayFast" : "Yoco"}</span>.
+            <span className="font-semibold text-zinc-600">Yoco</span>.
           </p>
+
+          {error && (
+            <p className="text-amber-600 text-sm mb-4 bg-amber-50 border border-amber-100 px-4 py-3 rounded-xl">
+              {error}
+            </p>
+          )}
 
           {orderNum && (
             <p className="text-zinc-400 text-sm mb-6">
@@ -78,12 +121,11 @@ function SuccessContent() {
             </Link>
           </div>
 
-          {/* Gateway badge */}
           <div className="mt-10 flex items-center justify-center gap-2 text-xs text-zinc-300">
             <svg className="w-3.5 h-3.5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
             </svg>
-            Secured by {payment === "payfast" ? "PayFast" : "Yoco"}
+            Secured by Yoco
           </div>
         </div>
       </main>

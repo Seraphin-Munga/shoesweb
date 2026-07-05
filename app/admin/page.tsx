@@ -5,14 +5,14 @@ import Link from "next/link";
 import { useAdminAuth } from "./context/AdminAuthContext";
 import { fetchAdminDashboard } from "../lib/api";
 import { formatZar } from "../lib/currency";
-import type { ApiDashboardStats, ApiMonthlyRevenue, ApiTopProduct, ApiDashboardOrder } from "../lib/types";
+import type { ApiDashboardStats, ApiMonthlyRevenue, ApiTopProduct, ApiDashboardOrder, ApiOrderStatus } from "../lib/types";
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string }> = {
-  pending:    { label: "Pending",    bg: "bg-zinc-100",  text: "text-zinc-600"  },
-  processing: { label: "Processing", bg: "bg-amber-50",  text: "text-amber-700" },
-  shipped:    { label: "Shipped",    bg: "bg-blue-50",   text: "text-blue-700"  },
-  delivered:  { label: "Delivered",  bg: "bg-green-50",  text: "text-green-700" },
-  cancelled:  { label: "Cancelled",  bg: "bg-red-50",    text: "text-red-600"   },
+const STATUS_CONFIG: Record<ApiOrderStatus, { label: string; bg: string; text: string }> = {
+  0: { label: "Pending",    bg: "bg-zinc-100",  text: "text-zinc-600"  },
+  1: { label: "Processing", bg: "bg-amber-50",  text: "text-amber-700" },
+  2: { label: "Shipped",    bg: "bg-blue-50",   text: "text-blue-700"  },
+  3: { label: "Delivered",  bg: "bg-green-50",  text: "text-green-700" },
+  4: { label: "Cancelled",  bg: "bg-red-50",    text: "text-red-600"   },
 };
 
 function orderLabel(id: number) {
@@ -182,7 +182,7 @@ function RecentOrders({ orders }: { orders: ApiDashboardOrder[] }) {
             </thead>
             <tbody className="divide-y divide-zinc-50">
               {orders.map((o) => {
-                const sc = STATUS_CONFIG[o.status] ?? STATUS_CONFIG.pending;
+                const sc = STATUS_CONFIG[o.status] ?? STATUS_CONFIG[0];
                 const product = o.items.map((i) => i.productName).join(", ") || "—";
                 return (
                   <tr key={o.id} className="hover:bg-zinc-50/50 transition-colors">

@@ -167,7 +167,9 @@ export type ApiDashboardOrder = {
   userId: string;
   customerName: string;
   customerEmail: string;
-  status: string;
+  status: ApiOrderStatus;
+  paymentMethod: string;
+  paymentReference: string;
   subTotal: number;
   shippingAmount: number;
   totalAmount: number;
@@ -309,8 +311,9 @@ export type CreateOrderPayload = {
   shippingAddress: string;
   shippingCity: string;
   shippingCountry: string;
-  paymentMethod: "payfast" | "yoco";
+  paymentMethod: "yoco";
   paymentReference?: string;
+  paymentConfirmed?: boolean;
   items: CreateOrderItem[];
 };
 

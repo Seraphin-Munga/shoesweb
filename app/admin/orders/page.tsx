@@ -37,7 +37,7 @@ function OrderDrawer({ order, token, onClose, onUpdated }: {
 }) {
   const [updating, setUpdating] = useState(false);
   const [error, setError]       = useState("");
-  const meta = STATUS[order.status];
+  const meta = STATUS[order.status] ?? STATUS[0];
 
   const advance = async () => {
     if (!token || meta.next == null) return;
@@ -179,8 +179,11 @@ export default function AdminOrdersPage() {
   const [selected, setSelected]   = useState<Set<number>>(new Set());
   const [drawer, setDrawer]       = useState<ApiOrder | null>(null);
 
+  const [fetchError, setFetchError] = useState("");
+
   const load = useCallback(async () => {
     setLoading(true);
+    setFetchError("");
     try {
       const res = await fetchOrders({
         search:   search || undefined,
@@ -188,9 +191,13 @@ export default function AdminOrdersPage() {
         page,
         pageSize: PAGE_SIZE,
       }, token ?? undefined);
-      setOrders(res.items);
-      setTotal(res.total);
-    } catch { setOrders([]); setTotal(0); }
+      setOrders(res.items ?? []);
+      setTotal(res.total ?? 0);
+    } catch (e: unknown) {
+      setOrders([]);
+      setTotal(0);
+      setFetchError(e instanceof Error ? e.message : "Failed to load orders");
+    }
     finally { setLoading(false); }
   }, [search, statusFilter, page, token]);
 
@@ -262,6 +269,14 @@ export default function AdminOrdersPage() {
           </div>
         )}
       </div>
+
+      {/* Error banner */}
+      {fetchError && (
+        <div className="bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-red-600">{fetchError}</p>
+          <button onClick={load} className="text-xs font-bold text-red-700 underline hover:no-underline ml-4">Retry</button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white border border-zinc-100 rounded-2xl overflow-hidden">

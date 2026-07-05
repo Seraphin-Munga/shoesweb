@@ -22,7 +22,7 @@ const PAGE_SIZE = 20;
 
 /* ─── Status badge ───────────────────────────────────────── */
 function StatusBadge({ status }: { status: ApiOrderStatus }) {
-  const s = STATUS[status];
+  const s = STATUS[status] ?? { label: String(status), bg: "bg-zinc-100", text: "text-zinc-500" };
   return (
     <span className={`inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full ${s.bg} ${s.text}`}>
       {s.label}

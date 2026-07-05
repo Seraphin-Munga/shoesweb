@@ -16,7 +16,7 @@ export interface OrderNotification {
 }
 
 // Strip the trailing /api segment — the hub lives at the root, not under /api
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api")
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api")
   .replace(/\/api\/?$/, "");
 const HUB_URL = `${API_BASE}/hubs/orders`;
 

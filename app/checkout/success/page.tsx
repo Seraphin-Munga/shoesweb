@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { useCart } from "../../context/CartContext";
 
-export default function CheckoutSuccessPage() {
+function SuccessContent() {
   const params   = useSearchParams();
   const payment  = params.get("payment");   // "payfast" | "yoco"
   const orderId  = params.get("orderId");   // present for yoco
@@ -89,5 +89,13 @@ export default function CheckoutSuccessPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense>
+      <SuccessContent />
+    </Suspense>
   );
 }

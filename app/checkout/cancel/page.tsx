@@ -1,11 +1,12 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 
-export default function CheckoutCancelPage() {
+function CancelContent() {
   const params  = useSearchParams();
   const payment = params.get("payment");
   const isError = params.get("error") === "1";
@@ -46,5 +47,13 @@ export default function CheckoutCancelPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function CheckoutCancelPage() {
+  return (
+    <Suspense>
+      <CancelContent />
+    </Suspense>
   );
 }

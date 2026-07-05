@@ -7,19 +7,21 @@ import {
   BiHomeAlt2, BiClipboard, BiBox, BiGroup,
   BiBarChartAlt2, BiCog, BiLinkExternal, BiLogOut,
   BiChevronLeft, BiChevronRight, BiCategory, BiPalette, BiEnvelope, BiImage,
+  BiPurchaseTag,
 } from "react-icons/bi";
 
 const NAV = [
-  { label: "Overview",     href: "/admin",               icon: BiHomeAlt2     },
-  { label: "Hero Banner",  href: "/admin/hero",          icon: BiImage        },
-  { label: "Orders",       href: "/admin/orders",        icon: BiClipboard    },
-  { label: "Products",     href: "/admin/products",      icon: BiBox          },
-  { label: "Categories",   href: "/admin/categories",    icon: BiCategory     },
-  { label: "Colors",       href: "/admin/colors",        icon: BiPalette      },
-  { label: "Customers",    href: "/admin/customers",     icon: BiGroup        },
-  { label: "Subscribers",  href: "/admin/subscribers",   icon: BiEnvelope     },
-  { label: "Analytics",    href: "/admin/analytics",     icon: BiBarChartAlt2 },
-  { label: "Settings",     href: "/admin/settings",      icon: BiCog          },
+  { label: "Overview",     href: "/admin",                icon: BiHomeAlt2     },
+  { label: "Hero Banner",  href: "/admin/hero",           icon: BiImage        },
+  { label: "Orders",       href: "/admin/orders",         icon: BiClipboard    },
+  { label: "Products",     href: "/admin/products",       icon: BiBox          },
+  { label: "Categories",   href: "/admin/categories",     icon: BiCategory     },
+  { label: "Colors",       href: "/admin/colors",         icon: BiPalette      },
+  { label: "Promo Codes",  href: "/admin/promo-codes",    icon: BiPurchaseTag  },
+  { label: "Customers",    href: "/admin/customers",      icon: BiGroup        },
+  { label: "Subscribers",  href: "/admin/subscribers",    icon: BiEnvelope     },
+  { label: "Analytics",    href: "/admin/analytics",      icon: BiBarChartAlt2 },
+  { label: "Settings",     href: "/admin/settings",       icon: BiCog          },
 ];
 
 type Props = { collapsed: boolean; onToggle: () => void };

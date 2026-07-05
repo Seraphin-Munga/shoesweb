@@ -1,12 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
 import ProtectedRoute from "../components/ProtectedRoute";
 import { formatZar, toZar } from "../lib/currency";
+import { validatePromoCode } from "../lib/api";
+import type { ValidatePromoResponse } from "../lib/types";
 
 function ShoeThumb() {
   return (
@@ -21,11 +25,52 @@ function ShoeThumb() {
 }
 
 export default function CartPage() {
+  const router = useRouter();
   const { items, count, subtotal, removeItem, updateQty, clearCart } = useCart();
+
+  const [promoInput,   setPromoInput]   = useState("");
+  const [promoState,   setPromoState]   = useState<ValidatePromoResponse | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
 
   const subtotalZar = toZar(subtotal);
   const shippingZar = subtotalZar >= 2775 ? 0 : toZar(12.99); // R2775 ≈ $150
-  const totalZar    = subtotalZar + shippingZar;
+
+  const discountZar = (() => {
+    if (!promoState?.valid) return 0;
+    if (promoState.discountType === "percent")
+      return Math.round(subtotalZar * (promoState.discountValue! / 100) * 100) / 100;
+    return Math.min(promoState.discountValue!, subtotalZar);
+  })();
+
+  const totalZar = subtotalZar + shippingZar - discountZar;
+
+  const applyPromo = async () => {
+    if (!promoInput.trim()) return;
+    setPromoLoading(true);
+    setPromoState(null);
+    try {
+      const res = await validatePromoCode(promoInput.trim().toUpperCase(), subtotalZar);
+      setPromoState(res);
+    } catch {
+      setPromoState({ valid: false, message: "Could not validate code" });
+    } finally {
+      setPromoLoading(false);
+    }
+  };
+
+  const removePromo = () => {
+    setPromoState(null);
+    setPromoInput("");
+  };
+
+  const goToCheckout = () => {
+    if (promoState?.valid) {
+      sessionStorage.setItem("stryde_promo", JSON.stringify(promoState));
+    } else {
+      sessionStorage.removeItem("stryde_promo");
+    }
+    router.push("/checkout");
+  };
 
   return (
     <ProtectedRoute>
@@ -181,23 +226,60 @@ export default function CartPage() {
                   </div>
 
                   {/* Promo */}
-                  <div className="flex gap-2 mb-6">
-                    <input type="text" placeholder="Promo code"
-                      className="flex-1 border border-zinc-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-zinc-400 transition-colors" />
-                    <button className="bg-zinc-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-zinc-700 transition-colors">
-                      Apply
-                    </button>
+                  <div className="mb-6">
+                    {promoState?.valid ? (
+                      <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-2.5">
+                        <div className="flex items-center gap-2 text-sm">
+                          <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="font-mono font-black text-zinc-900">{promoState.code}</span>
+                          <span className="text-green-700 font-semibold text-xs">
+                            {promoState.discountType === "percent"
+                              ? `${promoState.discountValue}% off`
+                              : `R${promoState.discountValue?.toFixed(2)} off`}
+                          </span>
+                        </div>
+                        <button onClick={removePromo} className="text-zinc-400 hover:text-red-500 transition-colors text-xs font-semibold">
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-1.5">
+                        <div className="flex gap-2">
+                          <input type="text" value={promoInput}
+                            onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+                            onKeyDown={(e) => e.key === "Enter" && applyPromo()}
+                            placeholder="Promo code"
+                            className="flex-1 border border-zinc-200 rounded-xl px-4 py-2.5 text-sm font-mono outline-none focus:border-zinc-900 transition-colors uppercase" />
+                          <button onClick={applyPromo} disabled={promoLoading || !promoInput.trim()}
+                            className="bg-zinc-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-zinc-700 transition-colors disabled:opacity-40 min-w-[72px]">
+                            {promoLoading ? "…" : "Apply"}
+                          </button>
+                        </div>
+                        {promoState && !promoState.valid && (
+                          <p className="text-xs text-red-600 px-1">{promoState.message}</p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="border-t border-zinc-200 pt-5 mb-6">
+                  <div className="border-t border-zinc-200 pt-5 mb-6 space-y-2">
+                    {discountZar > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-green-600 font-semibold">Discount</span>
+                        <span className="font-semibold text-green-600">- R {discountZar.toFixed(2)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="font-black text-zinc-900">Total</span>
                       <span className="font-black text-xl text-zinc-900">R {totalZar.toFixed(2)}</span>
                     </div>
-                    <p className="text-[11px] text-zinc-400 mt-1">Taxes calculated at checkout</p>
+                    <p className="text-[11px] text-zinc-400">Taxes calculated at checkout</p>
                   </div>
 
-                  <button className="w-full bg-zinc-900 text-white font-bold py-4 rounded-xl hover:bg-zinc-700 transition-colors text-sm flex items-center justify-center gap-2">
+                  <button onClick={goToCheckout}
+                    className="w-full bg-zinc-900 text-white font-bold py-4 rounded-xl hover:bg-zinc-700 transition-colors text-sm flex items-center justify-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -205,9 +287,9 @@ export default function CartPage() {
                     Checkout Securely
                   </button>
 
-                  {/* Payment icons */}
+                  {/* Payment badges */}
                   <div className="flex justify-center gap-2 mt-4">
-                    {["VISA","MC","AMEX","PAYPAL"].map((p) => (
+                    {["PAYFAST","YOCO","VISA","MC"].map((p) => (
                       <span key={p} className="text-[9px] font-black tracking-wider text-zinc-400 border border-zinc-200 rounded px-1.5 py-0.5">
                         {p}
                       </span>

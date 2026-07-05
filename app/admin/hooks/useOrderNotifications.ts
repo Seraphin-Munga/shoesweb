@@ -15,9 +15,10 @@ export interface OrderNotification {
   items: { productName: string; quantity: number; priceFormatted: string }[];
 }
 
-const HUB_URL = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/hubs/orders`
-  : "http://localhost:5000/hubs/orders";
+// Strip the trailing /api segment — the hub lives at the root, not under /api
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api")
+  .replace(/\/api\/?$/, "");
+const HUB_URL = `${API_BASE}/hubs/orders`;
 
 export function useOrderNotifications() {
   const [notifications, setNotifications] = useState<OrderNotification[]>([]);
@@ -35,8 +36,8 @@ export function useOrderNotifications() {
         transport: signalR.HttpTransportType.WebSockets |
                    signalR.HttpTransportType.LongPolling,
       })
-      .withAutomaticReconnect([0, 2000, 5000, 10000])
-      .configureLogging(signalR.LogLevel.Warning)
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+      .configureLogging(signalR.LogLevel.None)
       .build();
 
     connectionRef.current = connection;

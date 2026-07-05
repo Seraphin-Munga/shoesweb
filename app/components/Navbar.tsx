@@ -29,7 +29,9 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : null;
+  const initials = user
+    ? (`${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase().trim() || user.email?.[0]?.toUpperCase() || "?")
+    : null;
 
   return (
     <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${

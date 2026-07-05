@@ -3,17 +3,17 @@ import type {
   ApiResponse, PagedResult, ProductQuery, UpsertDiscountPayload,
   ApiOrder, OrderQuery, ApiDashboardStats, ApiAnalyticsStats, ApiCustomer,
   ApiStoreSettings, UpdateStoreSettingsPayload, ApiSubscriber, ApiHeroContent,
+  CreateOrderPayload, ApiPromoCode, CreatePromoCodePayload, ValidatePromoResponse,
+  ApiUserOrder,
 } from "./types";
 
 export const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 async function get<T>(path: string, token?: string): Promise<T> {
   const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
-  const isDev = process.env.NODE_ENV === "development";
-  const res = await fetch(`${BASE}${path}`, {
-    ...(isDev ? { cache: "no-store" } : { next: { revalidate: 60 } }),
-    headers,
-  });
+  // Always cache: "no-store" — using next:{revalidate} here marks the module as
+  // server-only in Turbopack, breaking every client-side import of this file.
+  const res = await fetch(`${BASE}${path}`, { cache: "no-store", headers });
   if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
   const json: ApiResponse<T> = await res.json();
   if (!json.success) throw new Error(json.message);
@@ -195,8 +195,30 @@ export async function fetchOrders(query: OrderQuery = {}, token?: string): Promi
   return json.data;
 }
 
+// ── Customer order tracking ───────────────────────────────
+export async function fetchMyOrders(token: string): Promise<ApiUserOrder[]> {
+  return get<ApiUserOrder[]>("/orders/my", token);
+}
+
+export async function fetchMyOrder(id: number, token: string): Promise<ApiUserOrder> {
+  return get<ApiUserOrder>(`/orders/${id}`, token);
+}
+
 export async function adminUpdateOrderStatus(id: number, status: number, token: string): Promise<ApiOrder> {
   return req<ApiOrder>("PATCH", `/orders/${id}/status`, { status }, token);
+}
+
+export async function createOrder(data: CreateOrderPayload, token?: string): Promise<ApiOrder> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const res = await fetch(`${BASE}/orders`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(data),
+  });
+  const json: ApiResponse<ApiOrder> = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
 }
 
 // ── Admin dashboard ───────────────────────────────────────
@@ -228,19 +250,35 @@ export async function fetchHeroContent(): Promise<ApiHeroContent> {
   return get<ApiHeroContent>("/hero");
 }
 
+export async function adminUploadHeroBanner(file: File, token: string): Promise<string> {
+  const form = new FormData();
+  form.append("file", file);
+  const res = await fetch(`${BASE}/admin/hero/image`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message ?? "Upload failed");
+  return (json.data.imageUrl ?? json.data.url ?? "") as string;
+}
+
 export async function adminUpdateHero(data: Partial<ApiHeroContent>, token: string): Promise<ApiStoreSettings> {
   const payload = {
-    heroBadge:          data.badge,
-    heroHeadline:       data.headline,
-    heroAccent:         data.accent,
-    heroSubtext:        data.subtext,
-    heroCta1Label:      data.cta1Label,
-    heroCta2Label:      data.cta2Label,
-    heroPromoLabel:     data.promoLabel,
-    heroPromoTitle:     data.promoTitle,
-    heroPromoBody:      data.promoBody,
-    heroBestSellerName: data.bestSellerName,
-    heroBestSellerPrice:data.bestSellerPrice,
+    heroBadge:           data.badge,
+    heroHeadline:        data.headline,
+    heroAccent:          data.accent,
+    heroSubtext:         data.subtext,
+    heroCta1Label:       data.cta1Label,
+    heroCta1Url:         data.cta1Url,
+    heroCta2Label:       data.cta2Label,
+    heroCta2Url:         data.cta2Url,
+    heroPromoLabel:      data.promoLabel,
+    heroPromoTitle:      data.promoTitle,
+    heroPromoBody:       data.promoBody,
+    heroBestSellerName:  data.bestSellerName,
+    heroBestSellerPrice: data.bestSellerPrice,
+    heroBannerImageUrl:  data.bannerImageUrl,
   };
   return req<ApiStoreSettings>("PUT", "/admin/settings", payload, token);
 }
@@ -279,7 +317,54 @@ export async function deleteAllSubscribers(token: string): Promise<void> {
   if (!json.success) throw new Error(json.message);
 }
 
+// ── Promo Codes ───────────────────────────────────────────
+export async function fetchPromoCodes(token: string): Promise<ApiPromoCode[]> {
+  return get<ApiPromoCode[]>("/promo-codes", token);
+}
+
+export async function adminCreatePromoCode(data: CreatePromoCodePayload, token: string): Promise<ApiPromoCode> {
+  return req<ApiPromoCode>("POST", "/promo-codes", data, token);
+}
+
+export async function adminUpdatePromoCode(id: number, data: Partial<CreatePromoCodePayload>, token: string): Promise<ApiPromoCode> {
+  return req<ApiPromoCode>("PUT", `/promo-codes/${id}`, data, token);
+}
+
+export async function adminDeletePromoCode(id: number, token: string): Promise<void> {
+  const res = await fetch(`${BASE}/promo-codes/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+}
+
+export async function validatePromoCode(code: string, orderTotalZar: number): Promise<ValidatePromoResponse> {
+  const res = await fetch(`${BASE}/promo-codes/validate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code, orderTotalZar }),
+  });
+  const json: ApiResponse<ValidatePromoResponse> = await res.json();
+  if (!json.success) return { valid: false, message: json.message ?? "Invalid code" };
+  return json.data;
+}
+
 // ── Auth ─────────────────────────────────────────────────
+export async function registerApi(firstName: string, lastName: string, email: string, password: string) {
+  const res = await fetch(`${BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ firstName, lastName, email, password }),
+  });
+  const json: ApiResponse<{
+    accessToken: string; refreshToken: string;
+    user: { firstName: string; lastName: string; email: string; role: string };
+  }> = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}
+
 export async function loginApi(email: string, password: string) {
   const res = await fetch(`${BASE}/auth/login`, {
     method: "POST",

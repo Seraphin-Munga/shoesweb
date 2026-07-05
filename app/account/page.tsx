@@ -7,6 +7,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
+import { fetchMyOrders } from "../lib/api";
 
 /* ── Sign In form ─────────────────────────────────────────────── */
 function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?: () => void }) {
@@ -179,18 +180,25 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
 
 /* ── Account dashboard ────────────────────────────────────────── */
 function Dashboard() {
-  const { user, signOut } = useAuth();
+  const { user, token, signOut } = useAuth();
   const { count: favCount } = useFavorites();
+  const [orderCount, setOrderCount] = useState(0);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchMyOrders(token).then((o) => setOrderCount(o.length)).catch(() => {});
+  }, [token]);
+
   if (!user) return null;
 
   const joinDate = new Date(user.joinedAt).toLocaleDateString("en-US", { month: "long", year: "numeric" });
-  const initials = `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+  const initials = (`${user.firstName?.[0] ?? ""}${user.lastName?.[0] ?? ""}`.toUpperCase().trim() || user.email?.[0]?.toUpperCase() || "?");
 
   const quickLinks = [
-    { label: "My Orders",    icon: "📦", href: "#",          note: "0 orders" },
+    { label: "My Orders",    icon: "📦", href: "/orders",    note: `${orderCount} order${orderCount !== 1 ? "s" : ""}` },
     { label: "My Favorites", icon: "❤️", href: "/favorites", note: `${favCount} saved` },
     { label: "My Cart",      icon: "🛍️", href: "/cart",      note: "" },
-    { label: "Size Guide",   icon: "📏", href: "#",          note: "" },
+    { label: "Size Guide",   icon: "📏", href: "/size-guide", note: "" },
   ];
 
   return (

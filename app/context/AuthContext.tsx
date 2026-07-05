@@ -1,16 +1,19 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { loginApi, registerApi } from "../lib/api";
 
 export type User = {
   firstName: string;
   lastName: string;
   email: string;
+  role: string;
   joinedAt: string;
 };
 
 type AuthContextValue = {
   user: User | null;
+  token: string | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
@@ -19,53 +22,71 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-const KEY = "stryde_user";
+const USER_KEY  = "stryde_user";
+const TOKEN_KEY = "stryde_token";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser]     = useState<User | null>(null);
+  const [user,    setUser]    = useState<User | null>(null);
+  const [token,   setToken]   = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Rehydrate from localStorage on mount
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = localStorage.getItem(USER_KEY);
+      const tok = localStorage.getItem(TOKEN_KEY);
       if (raw) setUser(JSON.parse(raw));
+      if (tok) setToken(tok);
     } catch {}
   }, []);
 
-  const persist = (u: User | null) => {
-    if (u) localStorage.setItem(KEY, JSON.stringify(u));
-    else localStorage.removeItem(KEY);
-    setUser(u);
+  const persist = (u: User | null, tok: string | null) => {
+    if (u)   { localStorage.setItem(USER_KEY,  JSON.stringify(u)); setUser(u); }
+    else     { localStorage.removeItem(USER_KEY); setUser(null); }
+    if (tok) { localStorage.setItem(TOKEN_KEY, tok); setToken(tok); }
+    else     { localStorage.removeItem(TOKEN_KEY); setToken(null); }
   };
 
-  const signIn = useCallback(async (email: string, _password: string) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    const stored = localStorage.getItem(KEY);
-    if (stored) {
-      const u: User = JSON.parse(stored);
-      if (u.email.toLowerCase() === email.toLowerCase()) {
-        persist(u);
-        setLoading(false);
-        return;
-      }
+    try {
+      const data = await loginApi(email.trim().toLowerCase(), password);
+      const u: User = {
+        firstName: data.user.firstName,
+        lastName:  data.user.lastName,
+        email:     data.user.email,
+        role:      data.user.role,
+        joinedAt:  new Date().toISOString(),
+      };
+      persist(u, data.accessToken);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-    throw new Error("No account found with that email. Please sign up first.");
   }, []);
 
-  const signUp = useCallback(async (firstName: string, lastName: string, email: string, _password: string) => {
+  const signUp = useCallback(async (
+    firstName: string, lastName: string, email: string, password: string,
+  ) => {
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
-    const u: User = { firstName, lastName, email, joinedAt: new Date().toISOString() };
-    persist(u);
-    setLoading(false);
+    try {
+      const data = await registerApi(firstName, lastName, email.trim().toLowerCase(), password);
+      const u: User = {
+        firstName: data.user.firstName,
+        lastName:  data.user.lastName,
+        email:     data.user.email,
+        role:      data.user.role,
+        joinedAt:  new Date().toISOString(),
+      };
+      persist(u, data.accessToken);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const signOut = useCallback(() => persist(null), []);
+  const signOut = useCallback(() => persist(null, null), []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, token, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

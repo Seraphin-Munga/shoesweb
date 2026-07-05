@@ -112,9 +112,13 @@ export type ApiOrder = {
   items: ApiOrderItem[];
   totalAmount: number;
   status: ApiOrderStatus;
+  paymentMethod: string;
+  paymentReference: string;
+  shippingAddress: string;
+  shippingCity: string;
+  shippingCountry: string;
   createdAt: string;
   updatedAt?: string;
-  shippingAddress?: string;
   notes?: string;
 };
 
@@ -330,8 +334,6 @@ export type YocoCheckoutResponse = {
 };
 
 // ── Customer order (full detail from /orders/my and /orders/:id) ──
-export type ApiUserOrderStatus = "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-
 export type ApiUserOrderItem = {
   id: number;
   productId: number;
@@ -349,7 +351,9 @@ export type ApiUserOrder = {
   userId: string;
   customerName: string;
   customerEmail: string;
-  status: ApiUserOrderStatus;
+  status: ApiOrderStatus;
+  paymentMethod: string;
+  paymentReference: string;
   subTotal: number;
   shippingAmount: number;
   totalAmount: number;

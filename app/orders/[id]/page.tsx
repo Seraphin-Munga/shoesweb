@@ -9,12 +9,12 @@ import Footer from "../../components/Footer";
 import { useAuth } from "../../context/AuthContext";
 import { fetchMyOrder } from "../../lib/api";
 import { formatZar } from "../../lib/currency";
-import type { ApiUserOrder, ApiUserOrderStatus } from "../../lib/types";
+import type { ApiUserOrder, ApiOrderStatus } from "../../lib/types";
 
 /* ── Status stepper ──────────────────────────────────────── */
-const STEPS: { key: ApiUserOrderStatus; label: string; desc: string; icon: React.ReactNode }[] = [
+const STEPS: { key: ApiOrderStatus; label: string; desc: string; icon: React.ReactNode }[] = [
   {
-    key: "pending",
+    key: 0,
     label: "Order Placed",
     desc: "We've received your order",
     icon: (
@@ -25,7 +25,7 @@ const STEPS: { key: ApiUserOrderStatus; label: string; desc: string; icon: React
     ),
   },
   {
-    key: "processing",
+    key: 1,
     label: "Processing",
     desc: "Preparing your items",
     icon: (
@@ -36,7 +36,7 @@ const STEPS: { key: ApiUserOrderStatus; label: string; desc: string; icon: React
     ),
   },
   {
-    key: "shipped",
+    key: 2,
     label: "Shipped",
     desc: "On the way to you",
     icon: (
@@ -47,7 +47,7 @@ const STEPS: { key: ApiUserOrderStatus; label: string; desc: string; icon: React
     ),
   },
   {
-    key: "delivered",
+    key: 3,
     label: "Delivered",
     desc: "Enjoy your new kicks!",
     icon: (
@@ -58,18 +58,18 @@ const STEPS: { key: ApiUserOrderStatus; label: string; desc: string; icon: React
   },
 ];
 
-const ORDER_INDEX: Record<ApiUserOrderStatus, number> = {
-  pending:    0,
-  processing: 1,
-  shipped:    2,
-  delivered:  3,
-  cancelled: -1,
+const ORDER_INDEX: Record<ApiOrderStatus, number> = {
+  0:  0,
+  1:  1,
+  2:  2,
+  3:  3,
+  4: -1,
 };
 
-function StatusStepper({ status }: { status: ApiUserOrderStatus }) {
-  const current = ORDER_INDEX[status];
+function StatusStepper({ status }: { status: ApiOrderStatus }) {
+  const current = ORDER_INDEX[status] ?? 0;
 
-  if (status === "cancelled") {
+  if (status === 4) {
     return (
       <div className="flex items-center gap-3 px-5 py-4 bg-red-50 border border-red-100 rounded-2xl">
         <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">

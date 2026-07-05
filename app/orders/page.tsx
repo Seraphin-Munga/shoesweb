@@ -8,19 +8,19 @@ import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { fetchMyOrders } from "../lib/api";
 import { formatZar } from "../lib/currency";
-import type { ApiUserOrder, ApiUserOrderStatus } from "../lib/types";
+import type { ApiUserOrder, ApiOrderStatus } from "../lib/types";
 
 /* ── Status config ───────────────────────────────────────── */
-const STATUS_META: Record<ApiUserOrderStatus, { label: string; dot: string; badge: string }> = {
-  pending:    { label: "Pending",    dot: "bg-yellow-400", badge: "bg-yellow-50 text-yellow-700 border-yellow-100" },
-  processing: { label: "Processing", dot: "bg-blue-400",   badge: "bg-blue-50 text-blue-700 border-blue-100" },
-  shipped:    { label: "Shipped",    dot: "bg-indigo-400", badge: "bg-indigo-50 text-indigo-700 border-indigo-100" },
-  delivered:  { label: "Delivered",  dot: "bg-green-400",  badge: "bg-green-50 text-green-700 border-green-100" },
-  cancelled:  { label: "Cancelled",  dot: "bg-red-400",    badge: "bg-red-50 text-red-600 border-red-100" },
+const STATUS_META: Record<ApiOrderStatus, { label: string; dot: string; badge: string }> = {
+  0: { label: "Pending",    dot: "bg-yellow-400", badge: "bg-yellow-50 text-yellow-700 border-yellow-100" },
+  1: { label: "Processing", dot: "bg-blue-400",   badge: "bg-blue-50 text-blue-700 border-blue-100" },
+  2: { label: "Shipped",    dot: "bg-indigo-400", badge: "bg-indigo-50 text-indigo-700 border-indigo-100" },
+  3: { label: "Delivered",  dot: "bg-green-400",  badge: "bg-green-50 text-green-700 border-green-100" },
+  4: { label: "Cancelled",  dot: "bg-red-400",    badge: "bg-red-50 text-red-600 border-red-100" },
 };
 
-function StatusBadge({ status }: { status: ApiUserOrderStatus }) {
-  const m = STATUS_META[status] ?? STATUS_META.pending;
+function StatusBadge({ status }: { status: ApiOrderStatus }) {
+  const m = STATUS_META[status] ?? STATUS_META[0];
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border ${m.badge}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${m.dot}`} />

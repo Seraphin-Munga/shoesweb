@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -11,7 +11,7 @@ import { createOrder } from "../lib/api";
 import { toZar, formatZarAmount } from "../lib/currency";
 import type { ValidatePromoResponse } from "../lib/types";
 
-type PaymentMethod = "payfast" | "yoco";
+type PaymentMethod = "yoco";
 
 type ShippingForm = {
   firstName: string;
@@ -44,14 +44,9 @@ export default function CheckoutPage() {
     city:      "",
     country:   "South Africa",
   });
-  const [method,  setMethod]  = useState<PaymentMethod>("payfast");
+  const [method] = useState<PaymentMethod>("yoco");
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState<string | null>(null);
-
-  // Hidden form for PayFast redirect
-  const pfFormRef  = useRef<HTMLFormElement>(null);
-  const pfUrlRef   = useRef<HTMLInputElement>(null);
-  const pfFieldsRef = useRef<HTMLDivElement>(null);
 
   const subtotalZar  = toZar(subtotal);
   const shippingZar  = subtotalZar >= 2775 ? 0 : toZar(12.99);
@@ -98,46 +93,11 @@ export default function CheckoutPage() {
       sessionStorage.setItem("stryde_pending_order", String(order.id));
       sessionStorage.removeItem("stryde_promo");
 
-      if (method === "payfast") {
-        await redirectToPayfast(order.id);
-      } else {
-        await redirectToYoco(order.id);
-      }
+      await redirectToYoco(order.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setLoading(false);
     }
-  }
-
-  async function redirectToPayfast(orderId: number) {
-    const res = await fetch("/api/checkout/payfast", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amountZar: totalZar.toFixed(2),
-        firstName: shipping.firstName,
-        lastName:  shipping.lastName,
-        email:     shipping.email,
-        orderId,
-      }),
-    });
-
-    if (!res.ok) throw new Error("Failed to initiate PayFast payment");
-    const { url, params } = await res.json();
-
-    // Build a hidden form and auto-submit to PayFast
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = url;
-    Object.entries(params as Record<string, string>).forEach(([k, v]) => {
-      const input = document.createElement("input");
-      input.type  = "hidden";
-      input.name  = k;
-      input.value = v;
-      form.appendChild(input);
-    });
-    document.body.appendChild(form);
-    form.submit();
   }
 
   async function redirectToYoco(orderId: number) {
@@ -236,64 +196,18 @@ export default function CheckoutPage() {
                   </div>
                 </section>
 
-                {/* Payment Method */}
+                {/* Payment */}
                 <section>
-                  <h2 className="text-lg font-black text-zinc-900 mb-5">Payment Method</h2>
-                  <div className="grid grid-cols-2 gap-4">
-
-                    {/* PayFast */}
-                    <button type="button" onClick={() => setMethod("payfast")}
-                      className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all ${
-                        method === "payfast"
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400"
-                      }`}>
-                      {method === "payfast" && (
-                        <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-white flex items-center justify-center">
-                          <svg className="w-3 h-3 text-zinc-900" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      )}
-                      {/* PayFast logo-style badge */}
-                      <div className={`flex items-center gap-1.5 font-black text-lg tracking-tight ${method === "payfast" ? "text-white" : "text-zinc-900"}`}>
-                        <span className={`px-1.5 py-0.5 rounded text-xs font-black ${method === "payfast" ? "bg-white text-zinc-900" : "bg-zinc-900 text-white"}`}>PAY</span>
-                        <span>FAST</span>
-                      </div>
-                      <p className={`text-xs text-center ${method === "payfast" ? "text-zinc-300" : "text-zinc-400"}`}>
-                        Cards · EFT · SnapScan
-                      </p>
-                    </button>
-
-                    {/* Yoco */}
-                    <button type="button" onClick={() => setMethod("yoco")}
-                      className={`relative flex flex-col items-center gap-3 p-5 rounded-2xl border-2 transition-all ${
-                        method === "yoco"
-                          ? "border-zinc-900 bg-zinc-900 text-white"
-                          : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400"
-                      }`}>
-                      {method === "yoco" && (
-                        <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-white flex items-center justify-center">
-                          <svg className="w-3 h-3 text-zinc-900" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      )}
-                      {/* Yoco logo-style badge */}
-                      <div className={`font-black text-2xl tracking-tight ${method === "yoco" ? "text-white" : "text-zinc-900"}`}>
-                        yoco
-                      </div>
-                      <p className={`text-xs text-center ${method === "yoco" ? "text-zinc-300" : "text-zinc-400"}`}>
-                        Visa · Mastercard · Amex
-                      </p>
-                    </button>
+                  <h2 className="text-lg font-black text-zinc-900 mb-5">Payment</h2>
+                  <div className="flex items-center gap-3 p-5 rounded-2xl border-2 border-zinc-900 bg-zinc-900 text-white">
+                    <div className="font-black text-2xl tracking-tight">yoco</div>
+                    <p className="text-xs text-zinc-300">Visa · Mastercard · Amex</p>
                   </div>
-
-                  <p className={`text-xs mt-3 flex items-center gap-1.5 ${method === "payfast" ? "text-zinc-400" : "text-zinc-400"}`}>
+                  <p className="text-xs mt-3 flex items-center gap-1.5 text-zinc-400">
                     <svg className="w-3.5 h-3.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                     </svg>
-                    Your payment is secured by {method === "payfast" ? "PayFast" : "Yoco"} — your card details never touch our servers.
+                    Your payment is secured by Yoco — your card details never touch our servers.
                   </p>
                 </section>
 
@@ -367,7 +281,7 @@ export default function CheckoutPage() {
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
-                        Redirecting to {method === "payfast" ? "PayFast" : "Yoco"}…
+                        Redirecting to Yoco…
                       </>
                     ) : (
                       <>
@@ -375,7 +289,7 @@ export default function CheckoutPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                         </svg>
-                        Pay {formatZarAmount(totalZar)} with {method === "payfast" ? "PayFast" : "Yoco"}
+                        Pay {formatZarAmount(totalZar)} with Yoco
                       </>
                     )}
                   </button>

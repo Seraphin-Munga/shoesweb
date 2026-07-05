@@ -103,7 +103,32 @@ function OrderDrawer({ order, token, onClose, onUpdated }: {
             <p className="font-bold text-zinc-900 text-sm">{order.customerName}</p>
             <p className="text-xs text-zinc-500">{order.customerEmail}</p>
             {order.shippingAddress && <p className="text-xs text-zinc-400 mt-1">{order.shippingAddress}</p>}
+            {(order.shippingCity || order.shippingCountry) && (
+              <p className="text-xs text-zinc-400">{[order.shippingCity, order.shippingCountry].filter(Boolean).join(", ")}</p>
+            )}
           </div>
+
+          {/* Payment */}
+          {order.paymentMethod && (
+            <div className="p-4 bg-zinc-50 rounded-2xl">
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-2">Payment</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-bold text-zinc-900 capitalize">{order.paymentMethod}</p>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  order.status === 1 || order.status === 2 || order.status === 3
+                    ? "bg-green-50 text-green-700"
+                    : order.status === 4
+                    ? "bg-red-50 text-red-600"
+                    : "bg-yellow-50 text-yellow-700"
+                }`}>
+                  {order.status === 0 ? "Pending" : order.status === 4 ? "Failed" : "Paid"}
+                </span>
+              </div>
+              {order.paymentReference && (
+                <p className="text-[10px] text-zinc-400 mt-1 font-mono break-all">{order.paymentReference}</p>
+              )}
+            </div>
+          )}
 
           {/* Items */}
           <div>

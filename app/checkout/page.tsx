@@ -108,7 +108,7 @@ export default function CheckoutPage() {
     const res = await fetch(`${apiUrl}/payments/yoco/checkout`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ orderId, amountZar: totalZar }),
+      body: JSON.stringify({ orderId, amountZar: totalZar, frontendBaseUrl: window.location.origin }),
     });
 
     const json = await res.json();

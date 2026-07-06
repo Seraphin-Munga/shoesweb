@@ -376,6 +376,7 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty]             = useState(1);
   const [added, setAdded]         = useState(false);
+  const [sizeError, setSizeError] = useState(false);
   const [activeTab, setTab]       = useState<TabKey>("description");
 
   if (!product) return null;
@@ -395,7 +396,11 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
   const saveAmount      = showStrike ? showStrike - displayPrice : 0;
 
   const handleAdd = () => {
-    if (!selectedSize) return;
+    if (!selectedSize) {
+      setSizeError(true);
+      return;
+    }
+    setSizeError(false);
     addItem(product, selectedSize, selectedColor, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
@@ -569,9 +574,9 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
                 <span className="text-sm font-semibold text-zinc-900">Size (US)</span>
                 <button className="text-xs text-zinc-400 underline hover:text-zinc-700 transition-colors">Size guide</button>
               </div>
-              <div className="grid grid-cols-6 gap-2">
+              <div className={`grid grid-cols-6 gap-2 ${sizeError ? "ring-2 ring-red-400 ring-offset-2 rounded-xl p-1" : ""}`}>
                 {(product.sizes ?? []).map((s) => (
-                  <button key={s} onClick={() => setSize(s)}
+                  <button key={s} onClick={() => { setSize(s); setSizeError(false); }}
                     className={`py-2.5 rounded-xl text-sm font-semibold border transition-all duration-200 ${
                       selectedSize === s
                         ? "bg-zinc-900 text-white border-zinc-900"
@@ -581,7 +586,16 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
                   </button>
                 ))}
               </div>
-              {!selectedSize && <p className="text-xs text-zinc-400 mt-2">Please select a size</p>}
+              {sizeError ? (
+                <p className="text-xs font-semibold text-red-500 mt-2 flex items-center gap-1.5">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                  </svg>
+                  Please select a size before adding to cart
+                </p>
+              ) : !selectedSize ? (
+                <p className="text-xs text-zinc-400 mt-2">Select your size to continue</p>
+              ) : null}
             </div>
 
             {/* Qty + Add */}
@@ -594,13 +608,15 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
                   className="px-4 py-3 text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50 transition-colors text-lg font-light">+</button>
               </div>
 
-              <button onClick={handleAdd} disabled={!selectedSize}
+              <button onClick={handleAdd}
                 className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-sm font-bold transition-all duration-300 ${
                   added
                     ? "bg-green-500 text-white"
+                    : sizeError
+                    ? "bg-red-500 text-white"
                     : selectedSize
                     ? "bg-zinc-900 text-white hover:bg-zinc-700"
-                    : "bg-zinc-100 text-zinc-400 cursor-not-allowed"
+                    : "bg-zinc-900 text-white hover:bg-zinc-700"
                 }`}>
                 {added ? (
                   <>
@@ -608,6 +624,13 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                     </svg>
                     Added to Cart
+                  </>
+                ) : sizeError ? (
+                  <>
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/>
+                    </svg>
+                    Select a Size First
                   </>
                 ) : (
                   <>

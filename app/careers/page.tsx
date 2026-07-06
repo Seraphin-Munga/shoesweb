@@ -87,7 +87,7 @@ export default function CareersPage() {
             We're always on the lookout for exceptional people. Send us your CV and tell us
             how you'd contribute to STRYDE.
           </p>
-          <a href="mailto:careers@stryde.com"
+          <a href="mailto:info@fenwalk.com"
             className="inline-block bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors">
             Send Speculative Application
           </a>

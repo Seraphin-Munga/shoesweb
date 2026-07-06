@@ -77,9 +77,9 @@ export default function PressPage() {
             <p className="text-zinc-400 text-sm mb-5 leading-relaxed">
               For media enquiries, interview requests, or product samples, reach our communications team.
             </p>
-            <a href="mailto:press@stryde.com"
+            <a href="mailto:info@fenwalk.com"
               className="text-sm font-bold text-zinc-900 hover:text-zinc-600 transition-colors">
-              press@stryde.com →
+              info@fenwalk.com →
             </a>
           </div>
           <div className="bg-zinc-900 rounded-2xl p-8 text-white">

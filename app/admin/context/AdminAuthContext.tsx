@@ -56,8 +56,8 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       // Fallback: allow hardcoded credentials when API is offline (dev only)
       if (process.env.NODE_ENV === "development") {
         const FALLBACK = [
-          { email: "admin@stryde.com",   password: "Admin@12345", name: "Admin",   role: "Super Admin" },
-          { email: "manager@stryde.com", password: "Admin@12345", name: "Manager", role: "Store Manager" },
+          { email: "info@fenwalk.com",   password: "Admin@12345", name: "Admin",   role: "Super Admin" },
+          { email: "info@fenwalk.com", password: "Admin@12345", name: "Manager", role: "Store Manager" },
         ];
         const match = FALLBACK.find((c) => c.email === email.trim().toLowerCase() && c.password === password);
         if (match) {

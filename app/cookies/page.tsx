@@ -96,8 +96,8 @@ export default function CookiesPage() {
         <h2 className="text-sm font-black text-zinc-900 mb-3">Contact</h2>
         <p className="text-sm text-zinc-500 leading-relaxed">
           Questions about our use of cookies? Contact us at{" "}
-          <a href="mailto:privacy@stryde.com" className="text-zinc-900 font-semibold hover:underline">
-            privacy@stryde.com
+          <a href="mailto:info@fenwalk.com" className="text-zinc-900 font-semibold hover:underline">
+            info@fenwalk.com
           </a>{" "}
           or visit our{" "}
           <Link href="/privacy" className="text-zinc-900 font-semibold hover:underline">

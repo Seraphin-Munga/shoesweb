@@ -42,7 +42,7 @@ const PRODUCT_NAMES: Record<number, string> = {
 /* ─── Review card ────────────────────────────────────────── */
 function ReviewCard({ review, dark }: { review: Review; dark?: boolean }) {
   const initials = review.author.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-  const productName = PRODUCT_NAMES[review.productId] ?? "STRYDE Product";
+  const productName = PRODUCT_NAMES[review.productId] ?? "Fenwalk Product";
 
   return (
     <div className={`flex flex-col rounded-3xl p-7 h-full ${

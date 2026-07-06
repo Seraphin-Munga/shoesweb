@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const STEPS = [
-  { step: "1", title: "Initiate Return",  body: "Log in to your account, go to Orders, and click 'Return' next to the item. Or email us at returns@stryde.com with your order number." },
+  { step: "1", title: "Initiate Return",  body: "Log in to your account, go to Orders, and click 'Return' next to the item. Or email us at info@fenwalk.com with your order number." },
   { step: "2", title: "Pack Your Shoes",  body: "Place shoes in their original box with all packaging, laces, and accessories. Attach the prepaid return label we email you." },
   { step: "3", title: "Drop Off",         body: "Drop the package at any PostNet, Courier Guy drop-off point, or schedule a free collection from your address." },
   { step: "4", title: "Get Refunded",     body: "We'll inspect the return within 1 business day. Your refund is processed within 2 business days and appears on your statement in 3–5 days." },
@@ -9,14 +9,14 @@ const STEPS = [
 
 const ELIGIBLE = [
   "Unworn shoes in original condition",
-  "Within 30 days of delivery",
+  "Within 5 days of delivery",
   "Original packaging included",
   "Tags and laces still attached",
 ];
 
 const NOT_ELIGIBLE = [
   "Worn or damaged shoes",
-  "After 30 days of delivery",
+  "After 5 days of delivery",
   "Items marked 'Final Sale'",
   "Missing original packaging",
 ];
@@ -34,7 +34,7 @@ export default function ReturnsPage() {
             <span className="text-zinc-400">No hassle.</span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed max-w-xl">
-            Not the right fit? Return within 30 days for a full refund — free of charge.
+            Not the right fit? Return within 5 days for a full refund — free of charge.
           </p>
         </div>
       </section>
@@ -128,7 +128,7 @@ export default function ReturnsPage() {
               className="bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors">
               My Account
             </Link>
-            <a href="mailto:returns@stryde.com"
+            <a href="mailto:info@fenwalk.com"
               className="border border-zinc-200 text-zinc-700 font-bold text-sm px-8 py-3.5 rounded-full hover:border-zinc-400 transition-colors">
               Email Us
             </a>

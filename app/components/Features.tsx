@@ -17,7 +17,7 @@ const features = [
       </svg>
     ),
     title: "Easy Returns",
-    desc: "Not the right fit? Return free within 30 days — no questions.",
+    desc: "Not the right fit? Return free within 5 days — no questions.",
   },
   {
     icon: (
@@ -62,8 +62,8 @@ export default function Features() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
           <div className="text-center mb-14">
-            <p className="text-xs font-semibold tracking-[0.2em] text-zinc-400 uppercase mb-2">Why STRYDE</p>
-            <h2 className="text-4xl font-black text-zinc-900 tracking-tight">The STRYDE Promise</h2>
+            <p className="text-xs font-semibold tracking-[0.2em] text-zinc-400 uppercase mb-2">Why FENWALK</p>
+            <h2 className="text-4xl font-black text-zinc-900 tracking-tight">The FENWALK Promise</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">

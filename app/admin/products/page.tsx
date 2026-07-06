@@ -121,7 +121,7 @@ type ProductFormData = {
 
 function EMPTY_FORM(): ProductFormData {
   return {
-    name: "", brand: "STRYDE", gender: "Men",
+    name: "", brand: "", gender: "Men",
     priceZar: "", originalPriceZar: "",
     badge: "", bgColor: "#f4f4f5", description: "",
     categoryId: null, stockQuantity: "0",

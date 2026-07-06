@@ -9,7 +9,7 @@ const SECTIONS = [
   },
   {
     title: "3. Account Registration",
-    body: "You may browse our website without registering, but you'll need an account to complete purchases. You are responsible for keeping your login credentials confidential and for all activity under your account. Notify us immediately of any unauthorised use at support@stryde.com.",
+    body: "You may browse our website without registering, but you'll need an account to complete purchases. You are responsible for keeping your login credentials confidential and for all activity under your account. Notify us immediately of any unauthorised use at info@fenwalk.com.",
   },
   {
     title: "4. Products & Pricing",
@@ -49,7 +49,7 @@ Payment is processed via Stripe. By placing an order you authorise us to charge 
   },
   {
     title: "12. Contact",
-    body: "Questions about these Terms? Contact us at legal@stryde.com or write to STRYDE (Pty) Ltd, Cape Town, South Africa.",
+    body: "Questions about these Terms? Contact us at info@fenwalk.com or write to STRYDE (Pty) Ltd, Cape Town, South Africa.",
   },
 ];
 

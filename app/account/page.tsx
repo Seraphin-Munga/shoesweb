@@ -596,7 +596,7 @@ function AccountContent() {
               {/* Logo + heading */}
               <div className="text-center mb-8">
                 <Link href="/" className="inline-block mb-6">
-                  <span className="text-2xl font-black tracking-[0.15em] text-zinc-900">STRYDE</span>
+                  <span className="text-2xl font-black tracking-[0.15em] text-zinc-900">FENWALK</span>
                 </Link>
                 <h1 className="text-2xl font-black text-zinc-900 mb-1">
                   {tab === "signin" ? "Welcome back" : "Create account"}
@@ -604,7 +604,7 @@ function AccountContent() {
                 <p className="text-sm text-zinc-500">
                   {tab === "signin"
                     ? "Sign in to access your orders and favorites."
-                    : "Join STRYDE for early access and exclusive perks."}
+                    : "Join FENWALK for early access and exclusive perks."}
                 </p>
               </div>
 

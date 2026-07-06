@@ -46,7 +46,7 @@ All third-party providers are required to handle your data in accordance with th
 • Withdraw consent where processing is consent-based
 • Lodge a complaint with the Information Regulator of South Africa
 
-To exercise any of these rights, email privacy@stryde.com.`,
+To exercise any of these rights, email info@fenwalk.com.`,
   },
   {
     title: "6. Cookies",
@@ -66,7 +66,7 @@ To exercise any of these rights, email privacy@stryde.com.`,
   },
   {
     title: "10. Contact Us",
-    body: "For questions, requests, or complaints about your personal information or this policy, contact our Information Officer at: privacy@stryde.com | STRYDE (Pty) Ltd, Cape Town, South Africa.",
+    body: "For questions, requests, or complaints about your personal information or this policy, contact our Information Officer at: info@fenwalk.com | STRYDE (Pty) Ltd, Cape Town, South Africa.",
   },
 ];
 

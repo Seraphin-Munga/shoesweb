@@ -9,14 +9,14 @@ const FAQS = [
     items: [
       { q: "How long does delivery take?",            a: "Standard delivery takes 3–5 business days within South Africa. Express (1–2 days) is available at checkout. Free standard shipping on orders over R1,500." },
       { q: "Can I track my order?",                   a: "Yes — once your order ships you'll receive an email with a tracking link. You can also track via the Order Status page in your account." },
-      { q: "Can I change or cancel my order?",        a: "Orders can be changed or cancelled within 1 hour of placing them. After that, the order may have already been picked and packed. Contact us immediately at support@stryde.com." },
+      { q: "Can I change or cancel my order?",        a: "Orders can be changed or cancelled within 1 hour of placing them. After that, the order may have already been picked and packed. Contact us immediately at info@fenwalk.com." },
       { q: "Do you ship internationally?",            a: "We currently ship to South Africa, Namibia, Botswana, Zimbabwe, Zambia, and Mozambique. International expansion is coming in 2027." },
     ],
   },
   {
     section: "Returns & Refunds",
     items: [
-      { q: "What is your return policy?",             a: "You have 30 days from delivery to return unworn shoes in original packaging. Worn or damaged items are not eligible. See our full Returns page for details." },
+      { q: "What is your return policy?",             a: "You have 5 days from delivery to return unworn shoes in original packaging. Worn or damaged items are not eligible. See our full Returns page for details." },
       { q: "How long do refunds take?",               a: "Once we receive your return, we process the refund within 2 business days. It may take a further 3–5 days to appear on your statement depending on your bank." },
       { q: "Can I exchange for a different size?",    a: "Yes. Simply return the original pair and place a new order for the correct size — we'll expedite your replacement order. Contact us for help." },
     ],
@@ -75,7 +75,7 @@ export default function HelpPage() {
       <section className="py-12 px-6 border-b border-zinc-100 bg-zinc-50">
         <div className="max-w-4xl mx-auto grid sm:grid-cols-3 gap-4">
           {[
-            { icon: "✉️", label: "Email Us",    detail: "support@stryde.com",     sub: "Reply within 24 hours" },
+            { icon: "✉️", label: "Email Us",    detail: "info@fenwalk.com",     sub: "Reply within 24 hours" },
             { icon: "💬", label: "Live Chat",   detail: "Available 9am – 6pm",    sub: "Mon – Fri (SAST)" },
             { icon: "📞", label: "Call Us",     detail: "+27 21 000 0000",         sub: "Mon – Fri 9am – 5pm" },
           ].map(({ icon, label, detail, sub }) => (
@@ -108,7 +108,7 @@ export default function HelpPage() {
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-xl font-black text-zinc-900 mb-2">Still need help?</h2>
           <p className="text-zinc-400 text-sm mb-6">Our support team is standing by.</p>
-          <a href="mailto:support@stryde.com"
+          <a href="mailto:info@fenwalk.com"
             className="inline-block bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors">
             Contact Support
           </a>

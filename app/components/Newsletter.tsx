@@ -36,7 +36,7 @@ export default function Newsletter() {
           Be First. Always.
         </h2>
         <p className="text-zinc-400 text-base leading-relaxed mb-10">
-          Join the STRYDE community. Early access to drops, member discounts,
+          Join the FENWALK community. Early access to drops, member discounts,
           and style inspiration — straight to your inbox.
         </p>
 
@@ -48,7 +48,7 @@ export default function Newsletter() {
               </svg>
             </div>
             <p className="text-white font-bold">You&apos;re in!</p>
-            <p className="text-zinc-500 text-sm">Check your inbox for a welcome gift from STRYDE.</p>
+            <p className="text-zinc-500 text-sm">Check your inbox for a welcome gift from FENWALK.</p>
           </div>
         ) : (
           <>

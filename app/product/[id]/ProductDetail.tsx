@@ -652,7 +652,7 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
             <div className="border-t border-zinc-100 pt-6 space-y-3">
               {[
                 { icon: "🚚", text: "Free shipping on orders over $150" },
-                { icon: "↩️", text: "Free returns within 30 days" },
+                { icon: "↩️", text: "Free returns within 5 days" },
                 { icon: "✅", text: "Authenticity guaranteed" },
               ].map((p) => (
                 <div key={p.text} className="flex items-center gap-3 text-sm text-zinc-500">

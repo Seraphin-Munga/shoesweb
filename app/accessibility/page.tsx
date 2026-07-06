@@ -53,8 +53,8 @@ export default function AccessibilityPage() {
         </p>
         <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-6 mb-8">
           <p className="text-sm font-semibold text-zinc-700 mb-1">Accessibility Team</p>
-          <a href="mailto:accessibility@stryde.com" className="text-sm text-zinc-900 font-bold hover:underline">
-            accessibility@stryde.com
+          <a href="mailto:info@fenwalk.com" className="text-sm text-zinc-900 font-bold hover:underline">
+            info@fenwalk.com
           </a>
           <p className="text-xs text-zinc-400 mt-1">Response within 2 business days</p>
         </div>

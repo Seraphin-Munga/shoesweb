@@ -40,7 +40,7 @@ export default function AdminLoginPage() {
             <BiLockAlt className="w-3.5 h-3.5" />
             Demo credentials
           </p>
-          <p>Email: <span className="text-zinc-200 font-mono">admin@stryde.com</span></p>
+          <p>Email: <span className="text-zinc-200 font-mono">info@fenwalk.com</span></p>
           <p>Password: <span className="text-zinc-200 font-mono">Admin123!</span></p>
         </div>
 
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
             <input
               type="email" required autoComplete="email"
               value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@stryde.com"
+              placeholder="info@fenwalk.com"
               className="w-full bg-white/5 border border-white/10 focus:border-white/30 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors"
             />
           </div>

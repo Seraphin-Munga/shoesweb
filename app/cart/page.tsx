@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useCart } from "../context/CartContext";
 import ProtectedRoute from "../components/ProtectedRoute";
-import { formatZar, toZar } from "../lib/currency";
+import { formatZar, formatZarAmount, toZar } from "../lib/currency";
 import { validatePromoCode } from "../lib/api";
 import type { ValidatePromoResponse } from "../lib/types";
 
@@ -33,7 +33,7 @@ export default function CartPage() {
   const [promoLoading, setPromoLoading] = useState(false);
 
   const subtotalZar = toZar(subtotal);
-  const shippingZar = subtotalZar >= 2775 ? 0 : toZar(12.99); // R2775 ≈ $150
+  const shippingZar = subtotalZar >= 3000 ? 0 : toZar(12.99);
 
   const discountZar = (() => {
     if (!promoState?.valid) return 0;
@@ -220,7 +220,7 @@ export default function CartPage() {
                     </div>
                     {shippingZar > 0 && (
                       <p className="text-[11px] text-zinc-400">
-                        Add {formatZar((2775 - subtotalZar) / 18.5)} more for free shipping
+                        Add {formatZarAmount(3000 - subtotalZar)} more for free shipping
                       </p>
                     )}
                   </div>

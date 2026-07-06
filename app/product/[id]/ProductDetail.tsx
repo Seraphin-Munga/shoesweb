@@ -651,7 +651,7 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
             {/* Perks */}
             <div className="border-t border-zinc-100 pt-6 space-y-3">
               {[
-                { icon: "🚚", text: "Free shipping on orders over $150" },
+                { icon: "🚚", text: "Free shipping on orders over R3 000" },
                 { icon: "↩️", text: "Free returns within 5 days" },
                 { icon: "✅", text: "Authenticity guaranteed" },
               ].map((p) => (

@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "shoes-product.sfo3.digitaloceanspaces.com",
+        hostname: "shoes-prod.sfo3.digitaloceanspaces.com",
       },
     ],
   },

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAdminAuth } from "../context/AdminAuthContext";
-import { BiShieldAlt2, BiShow, BiHide, BiLockAlt, BiErrorCircle, BiLoaderAlt } from "react-icons/bi";
+import { BiShieldAlt2, BiShow, BiHide, BiErrorCircle, BiLoaderAlt } from "react-icons/bi";
 
 export default function AdminLoginPage() {
   const { login, loading } = useAdminAuth();
@@ -34,16 +34,6 @@ export default function AdminLoginPage() {
           <p className="text-zinc-500 text-sm mt-1">Sign in to manage your store</p>
         </div>
 
-        {/* Demo credentials hint */}
-        <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 mb-6 text-xs text-zinc-400 space-y-0.5">
-          <p className="font-semibold text-zinc-300 mb-1 flex items-center gap-1.5">
-            <BiLockAlt className="w-3.5 h-3.5" />
-            Demo credentials
-          </p>
-          <p>Email: <span className="text-zinc-200 font-mono">info@fenwalk.com</span></p>
-          <p>Password: <span className="text-zinc-200 font-mono">Admin123!</span></p>
-        </div>
-
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -53,7 +43,7 @@ export default function AdminLoginPage() {
             <input
               type="email" required autoComplete="email"
               value={email} onChange={(e) => setEmail(e.target.value)}
-              placeholder="info@fenwalk.com"
+              placeholder="admin@example.com"
               className="w-full bg-white/5 border border-white/10 focus:border-white/30 rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-600 outline-none transition-colors"
             />
           </div>

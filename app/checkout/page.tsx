@@ -51,7 +51,7 @@ export default function CheckoutPage() {
   const [error,   setError]   = useState<string | null>(null);
 
   const subtotalZar  = toZar(subtotal);
-  const shippingZar  = subtotalZar >= 2775 ? 0 : toZar(12.99);
+  const shippingZar  = subtotalZar >= 3000 ? 0 : toZar(12.99);
   const discountZar  = (() => {
     if (!promo?.valid) return 0;
     if (promo.discountType === "percent")

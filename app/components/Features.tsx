@@ -7,7 +7,7 @@ const features = [
       </svg>
     ),
     title: "Free Shipping",
-    desc: "On every order over $150. Worldwide delivery to your door.",
+    desc: "On every order over R3 000. Worldwide delivery to your door.",
   },
   {
     icon: (

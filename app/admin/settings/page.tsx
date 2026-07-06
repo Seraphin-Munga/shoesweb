@@ -201,7 +201,7 @@ export default function AdminSettingsPage() {
           </div>
           <div>
             <label className="block text-xs font-semibold text-zinc-500 mb-1.5">
-              Standard Shipping Fee (USD)
+              Standard Shipping Fee (ZAR)
             </label>
             <input type="number" step="0.01" min="0" value={settings.standardShippingFeeUsd}
               onChange={(e) => update("standardShippingFeeUsd", parseFloat(e.target.value) || 0)}

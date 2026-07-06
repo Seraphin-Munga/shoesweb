@@ -222,7 +222,7 @@ export default function ProductGrid() {
                         <span className="text-zinc-400 text-xs line-through">{formatZar(showStrike)}</span>
                       )}
                     </div>
-                    <Link href={`/products/${p.id}`}
+                    <Link href={`/product/${p.id}`}
                       onClick={(e) => e.stopPropagation()}
                       className="text-xs font-bold px-3.5 py-2 rounded-xl bg-zinc-900 text-white hover:bg-zinc-700 transition-all duration-300">
                       Quick View

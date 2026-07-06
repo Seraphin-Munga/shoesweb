@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import {
-  fetchProducts, fetchCategories, fetchColors,
+  fetchProducts, fetchProduct, fetchCategories, fetchColors,
   adminCreateProduct, adminUpdateProduct, adminDeleteProduct,
   adminUploadProductImages, adminUpsertDiscount, adminRemoveDiscount,
   fetchAdminSettings,
@@ -736,7 +736,7 @@ export default function AdminProductsPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M17 17h.01M6.5 6.5l11 11M6 6l2-2a2 2 0 012.8 0l1.2 1.2a2 2 0 002.8 0L17 4a2 2 0 012.8 0L21 5.5" />
                         </svg>
                       </button>
-                      <button onClick={() => setEdit(p)}
+                      <button onClick={async () => { const full = await fetchProduct(p.id); setEdit(full as ApiProduct); }}
                         className="w-7 h-7 rounded-lg border border-zinc-200 flex items-center justify-center text-zinc-400 hover:text-zinc-900 hover:border-zinc-400 transition-colors" title="Edit">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

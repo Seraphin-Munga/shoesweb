@@ -16,22 +16,26 @@ function SuccessContent() {
   const ran      = useRef(false);
 
   useEffect(() => {
-    if (ran.current) return;
+    // Wait until auth has loaded and we have a token before confirming
+    if (!orderId || !token || ran.current) return;
     ran.current = true;
 
     (async () => {
-      if (orderId) {
-        try {
-          const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api";
-          const headers: HeadersInit = { "Content-Type": "application/json" };
-          if (token) headers["Authorization"] = `Bearer ${token}`;
-          await fetch(`${apiUrl}/orders/${orderId}/confirm-payment`, { method: "POST", headers });
-        } catch {
-          // non-blocking — order is already created
-        }
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api";
+        await fetch(`${apiUrl}/orders/${orderId}/confirm-payment`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+        });
+      } catch {
+        // non-blocking — order already exists
+      } finally {
+        clearCart();
+        sessionStorage.removeItem("stryde_promo");
       }
-      clearCart();
-      sessionStorage.removeItem("stryde_promo");
     })();
   }, [clearCart, orderId, token]);
 

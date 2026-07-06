@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useCart }      from "../context/CartContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useReviews }   from "../context/ReviewsContext";
 import { fetchProducts } from "../lib/api";
@@ -47,10 +46,8 @@ function Stars({ rating }: { rating: number }) {
 }
 
 export default function ProductGrid() {
-  const { addItem }               = useCart();
   const { toggle, isFav }         = useFavorites();
   const { getReviews }            = useReviews();
-  const [added, setAdded]         = useState<number[]>([]);
   const [activeFilter, setActive] = useState("All");
   const [allProducts, setAll]     = useState<ApiProduct[]>([]);
   const [loading, setLoading]     = useState(true);
@@ -81,13 +78,6 @@ export default function ProductGrid() {
   const filtered = activeFilter === "All"
     ? allProducts
     : allProducts.filter((p) => p.category === activeFilter);
-
-  const quickAdd = (e: React.MouseEvent, product: ApiProduct) => {
-    e.preventDefault();
-    addItem(product as any, product.sizes[0] ?? 9, product.colors[0]?.name ?? "Default");
-    setAdded((prev) => [...prev, product.id]);
-    setTimeout(() => setAdded((prev) => prev.filter((i) => i !== product.id)), 2000);
-  };
 
   return (
     <section id="new-arrivals" className="py-24 bg-zinc-50">
@@ -135,7 +125,6 @@ export default function ProductGrid() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {!loading && filtered.map((p) => {
             const inWish    = isFav(p.id);
-            const justAdded = added.includes(p.id);
             const saleDiscount    = p.originalPrice
               ? Math.round((1 - p.price / p.originalPrice) * 100) : null;
             const activeDiscount  = p.discountPercent ?? null;
@@ -223,7 +212,7 @@ export default function ProductGrid() {
                     )}
                   </div>
 
-                  {/* Price + Quick add */}
+                  {/* Price + Quick View */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-baseline gap-2">
                       <span className={`font-black text-base ${displayDiscount ? "text-red-600" : "text-zinc-900"}`}>
@@ -233,16 +222,11 @@ export default function ProductGrid() {
                         <span className="text-zinc-400 text-xs line-through">{formatZar(showStrike)}</span>
                       )}
                     </div>
-                    <button onClick={(e) => quickAdd(e, p)} disabled={!p.isInStock}
-                      className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all duration-300 ${
-                        !p.isInStock
-                          ? "bg-zinc-100 text-zinc-400 cursor-not-allowed"
-                          : justAdded
-                          ? "bg-green-500 text-white"
-                          : "bg-zinc-900 text-white hover:bg-zinc-700"
-                      }`}>
-                      {!p.isInStock ? "—" : justAdded ? "✓" : "+"}
-                    </button>
+                    <Link href={`/products/${p.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-xs font-bold px-3.5 py-2 rounded-xl bg-zinc-900 text-white hover:bg-zinc-700 transition-all duration-300">
+                      Quick View
+                    </Link>
                   </div>
                 </div>
               </article>

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, "") ?? "https://starfish-app-hty75.ondigitalocean.app";
+const BASE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.fenwalk.com").replace(/\/$/, "");
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,15 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: [
-          "/admin",
-          "/account",
-          "/orders",
-          "/cart",
-          "/checkout",
-          "/favorites",
-          "/api",
-        ],
+        disallow: ["/admin", "/account", "/orders", "/cart", "/checkout", "/favorites", "/api"],
       },
     ],
     sitemap: `${BASE}/sitemap.xml`,

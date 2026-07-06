@@ -288,12 +288,31 @@ export default function CartPage() {
                   </button>
 
                   {/* Payment badges */}
-                  <div className="flex justify-center gap-2 mt-4">
-                    {["PAYFAST","YOCO","VISA","MC"].map((p) => (
-                      <span key={p} className="text-[9px] font-black tracking-wider text-zinc-400 border border-zinc-200 rounded px-1.5 py-0.5">
-                        {p}
-                      </span>
-                    ))}
+                  <div className="flex justify-center items-center gap-2 mt-4">
+                    {/* Visa */}
+                    <span className="flex items-center justify-center border border-zinc-200 rounded px-2 py-1 bg-white h-7">
+                      <svg width="38" height="12" viewBox="0 0 38 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <text x="0" y="10" fontFamily="Arial, Helvetica, sans-serif" fontSize="11" fontWeight="800" fontStyle="italic" fill="#1A1F71">VISA</text>
+                      </svg>
+                    </span>
+                    {/* Apple Pay */}
+                    <span className="flex items-center justify-center border border-zinc-200 rounded px-2 py-1 bg-black h-7">
+                      <svg width="46" height="14" viewBox="0 0 46 14" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.2 1.8c.4-.5 1-.9 1.7-.8.1.7-.2 1.4-.6 1.9-.4.5-1 .9-1.7.8-.1-.7.2-1.4.6-1.9zm1.6 2.5c-.9-.1-1.7.5-2.1.5-.4 0-1.1-.5-1.8-.5C3.9 4.4 2.9 5 2.4 6c-1.1 1.9-.3 4.7.8 6.2.5.7 1.2 1.6 2 1.5.8 0 1.1-.5 2-.5.9 0 1.2.5 2 .5.8 0 1.4-.8 1.9-1.5.6-.8.9-1.7.9-1.7s-1.7-.7-1.7-2.5c0-1.6 1.3-2.3 1.3-2.3s-.7-1.4-2.3-1.4z" fill="white"/>
+                        <text x="14" y="11" fontFamily="-apple-system, BlinkMacSystemFont, sans-serif" fontSize="9" fontWeight="600" fill="white">Pay</text>
+                      </svg>
+                    </span>
+                    {/* Google Pay */}
+                    <span className="flex items-center justify-center border border-zinc-200 rounded px-2 py-1 bg-white h-7">
+                      <svg width="46" height="16" viewBox="0 0 46 16" xmlns="http://www.w3.org/2000/svg">
+                        <text x="0" y="12" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="500" fill="#5F6368">G</text>
+                        <text x="8" y="12" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="500" fill="#EA4335">o</text>
+                        <text x="14" y="12" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="500" fill="#FBBC05">o</text>
+                        <text x="20" y="12" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="500" fill="#34A853">g</text>
+                        <text x="26" y="12" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="500" fill="#4285F4">le</text>
+                        <text x="35" y="12" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="600" fill="#5F6368"> Pay</text>
+                      </svg>
+                    </span>
                   </div>
                 </div>
               </div>

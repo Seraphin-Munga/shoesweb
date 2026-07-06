@@ -1,3 +1,27 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shoe Size Guide — SA, EU, UK & US Sizes",
+  description:
+    "Find your perfect shoe size with the Fenwalk size guide. Convert between South African, EU, UK and US sizes for men, women and kids. Shop the right fit every time.",
+  keywords: [
+    "shoe size guide South Africa",
+    "shoe size conversion",
+    "SA shoe sizes",
+    "EU UK US shoe sizes",
+    "what size shoe South Africa",
+    "kids shoe size chart",
+    "womens shoe size chart",
+    "mens shoe size chart",
+  ],
+  alternates: { canonical: "https://www.fenwalk.com/size-guide" },
+  openGraph: {
+    url: "https://www.fenwalk.com/size-guide",
+    title: "Shoe Size Guide — SA, EU, UK & US Sizes | Fenwalk",
+    description: "Convert shoe sizes: SA, EU, UK, US for men, women and kids. Get the right fit every time.",
+  },
+};
+
 const MEN_SIZES = [
   { za: "6",  eu: "39", uk: "5.5", us: "6.5",  cm: "24.5" },
   { za: "7",  eu: "40", uk: "6.5", us: "7.5",  cm: "25.4" },

@@ -1,4 +1,24 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Returns & Refunds Policy — 5-Day Free Returns",
+  description:
+    "Not the right fit? Return your shoes to Fenwalk within 5 days of delivery for free. Easy returns, fast refunds. Shop with confidence across South Africa.",
+  keywords: [
+    "shoe returns South Africa",
+    "return policy South Africa",
+    "free returns shoes",
+    "Fenwalk returns",
+    "shoe refund South Africa",
+  ],
+  alternates: { canonical: "https://www.fenwalk.com/returns" },
+  openGraph: {
+    url: "https://www.fenwalk.com/returns",
+    title: "Returns & Refunds Policy — 5-Day Free Returns | Fenwalk",
+    description: "Free returns within 5 days of delivery. Fast refunds. Shop shoes online with confidence.",
+  },
+};
 
 const STEPS = [
   { step: "1", title: "Initiate Return",  body: "Log in to your account, go to Orders, and click 'Return' next to the item. Or email us at info@fenwalk.com with your order number." },

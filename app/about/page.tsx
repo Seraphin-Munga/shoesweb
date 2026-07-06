@@ -1,4 +1,24 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "About Fenwalk — South Africa's Online Shoe Retailer",
+  description:
+    "Learn about Fenwalk, South Africa's trusted online shoe retailer. We stock Nike, Adidas, New Balance, Puma and more — with honest pricing and fast delivery across South Africa.",
+  keywords: [
+    "about Fenwalk",
+    "shoe retailer South Africa",
+    "Cape Town shoe store",
+    "online shoe store South Africa",
+    "Nike Adidas Puma South Africa",
+  ],
+  alternates: { canonical: "https://www.fenwalk.com/about" },
+  openGraph: {
+    url: "https://www.fenwalk.com/about",
+    title: "About Fenwalk — South Africa's Online Shoe Retailer",
+    description: "Fenwalk stocks the world's best footwear brands. Honest pricing, fast delivery, genuine products.",
+  },
+};
 
 const VALUES = [
   { title: "Top Brands",        body: "We stock Nike, Adidas, New Balance, Puma, and more — all genuine, all quality-checked before they reach you." },

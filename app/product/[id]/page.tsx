@@ -8,12 +8,40 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   try {
     const product = await fetchProduct(Number(id));
+    const title       = `${product.name} — Buy Online South Africa`;
+    const description = product.description
+      ?? `Buy ${product.name} by ${product.brand} online in South Africa. Authentic, quality-checked, fast delivery. Free shipping on orders over R3 000.`;
+    const image       = product.imageUrls?.[0];
+    const url         = `https://www.fenwalk.com/product/${id}`;
     return {
-      title: `${product.name}, STRYDE`,
-      description: product.description ?? `${product.name} by ${product.brand}`,
+      title,
+      description,
+      keywords: [
+        product.name,
+        product.brand,
+        `${product.brand} South Africa`,
+        `buy ${product.brand} online`,
+        `${product.name} South Africa`,
+        "shoes South Africa",
+        "buy shoes online South Africa",
+      ],
+      alternates: { canonical: url },
+      openGraph: {
+        url,
+        title,
+        description,
+        type:   "website",
+        images: image ? [{ url: image, width: 800, height: 800, alt: product.name }] : [],
+      },
+      twitter: {
+        card:        "summary_large_image",
+        title,
+        description,
+        images:      image ? [image] : [],
+      },
     };
   } catch {
-    return { title: "Product, STRYDE" };
+    return { title: "Shoes | Fenwalk" };
   }
 }
 

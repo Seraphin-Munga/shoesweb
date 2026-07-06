@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions",
+  description: "Fenwalk terms and conditions. Read our policies on purchases, delivery, returns and use of our online shoe store.",
+  alternates: { canonical: "https://www.fenwalk.com/terms" },
+  robots: { index: true, follow: true },
+};
+
 const SECTIONS = [
   {
     title: "1. Acceptance of Terms",

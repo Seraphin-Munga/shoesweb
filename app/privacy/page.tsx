@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Read Fenwalk's privacy policy. Learn how we collect, use and protect your personal data when you shop for shoes online.",
+  alternates: { canonical: "https://www.fenwalk.com/privacy" },
+  robots: { index: true, follow: true },
+};
+
 const SECTIONS = [
   {
     title: "1. Information We Collect",

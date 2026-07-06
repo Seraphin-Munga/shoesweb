@@ -168,10 +168,10 @@ function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
   );
 }
 
-/* ── Sign Up form (3 steps: details → OTP → done) ────────────── */
+/* ── Sign Up form (steps: details → otp → creating → done) ───── */
 function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?: () => void }) {
   const { signUp, loading } = useAuth();
-  const [step,  setStep]  = useState<"details" | "otp">("details");
+  const [step,  setStep]  = useState<"details" | "otp" | "creating">("details");
   const [form,  setForm]  = useState({ firstName: "", lastName: "", email: "", password: "", confirm: "" });
   const [otp,   setOtp]   = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
@@ -186,6 +186,25 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
     return () => clearTimeout(t);
   }, [countdown]);
 
+  /* ── Auto-create account once we hit "creating" step ── */
+  useEffect(() => {
+    if (step !== "creating") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        await signUp(form.firstName, form.lastName, form.email, form.password);
+        if (!cancelled) onSuccess?.();
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Account creation failed. Please try again.");
+          setStep("details");
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
@@ -195,6 +214,10 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
     setError("");
     if (form.password !== form.confirm) { setError("Passwords don't match."); return; }
     if (form.password.length < 8)       { setError("Password must be at least 8 characters."); return; }
+    if (!/[A-Z]/.test(form.password))   { setError("Password must contain at least one uppercase letter."); return; }
+    if (!/[a-z]/.test(form.password))   { setError("Password must contain at least one lowercase letter."); return; }
+    if (!/[0-9]/.test(form.password))   { setError("Password must contain at least one digit."); return; }
+    if (!/[^a-zA-Z0-9]/.test(form.password)) { setError("Password must contain at least one special character (e.g. @, #, !)."); return; }
     setBusy(true);
     try {
       await sendOtpApi(form.email.trim().toLowerCase());
@@ -233,7 +256,7 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
     }
   };
 
-  /* ── Step 2: verify OTP then register ── */
+  /* ── Step 2: verify OTP → transition to "creating" ── */
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
@@ -242,8 +265,7 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
     setBusy(true);
     try {
       await verifyOtpApi(form.email.trim().toLowerCase(), code);
-      await signUp(form.firstName, form.lastName, form.email, form.password);
-      onSuccess?.();
+      setStep("creating");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed.");
     } finally {
@@ -266,6 +288,19 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
       setBusy(false);
     }
   };
+
+  /* ── Step 3: creating account spinner ── */
+  if (step === "creating") {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 space-y-4 text-center">
+        <svg className="w-10 h-10 animate-spin text-zinc-400" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+        </svg>
+        <p className="text-sm font-semibold text-zinc-700">Creating your account…</p>
+      </div>
+    );
+  }
 
   const isLoading = busy || loading;
 

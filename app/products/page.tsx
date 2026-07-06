@@ -8,7 +8,6 @@ import Navbar  from "../components/Navbar";
 import Footer  from "../components/Footer";
 import { fetchProducts, fetchCategories, fetchColors } from "../lib/api";
 import { formatZar }     from "../lib/currency";
-import { useCart }       from "../context/CartContext";
 import { useFavorites }  from "../context/FavoritesContext";
 import { useReviews }    from "../context/ReviewsContext";
 import type { ApiProduct, ApiCategory, ApiColorFull, ProductQuery } from "../lib/types";
@@ -94,10 +93,8 @@ function ProductImg({ product, className }: { product: ApiProduct; className?: s
 
 /* ─── Grid card ──────────────────────────────────────────── */
 function GridCard({ product }: { product: ApiProduct }) {
-  const { addItem }       = useCart();
   const { toggle, isFav } = useFavorites();
   const { getReviews }    = useReviews();
-  const [added, setAdded] = useState(false);
 
   const fav             = isFav(product.id);
   const saleDiscount    = product.originalPrice
@@ -111,14 +108,6 @@ function GridCard({ product }: { product: ApiProduct }) {
   const displayRating   = localReviews.length > 0
     ? localReviews.reduce((s, r) => s + r.rating, 0) / localReviews.length
     : product.rating;
-
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!product.isInStock) return;
-    addItem(product as any, product.sizes[0] ?? 9, product.colors[0]?.name ?? "Default");
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
 
   return (
     <article className="relative group bg-white border border-zinc-100 rounded-2xl overflow-hidden hover:border-zinc-200 hover:shadow-lg hover:shadow-zinc-100 transition-all duration-300">
@@ -178,14 +167,10 @@ function GridCard({ product }: { product: ApiProduct }) {
               <span className="text-zinc-400 text-xs line-through">{formatZar(showStrike)}</span>
             )}
           </div>
-          <button onClick={handleAdd} disabled={!product.isInStock}
-            className={`text-xs font-bold px-3.5 py-2 rounded-xl transition-all duration-300 ${
-              !product.isInStock ? "bg-zinc-100 text-zinc-400 cursor-not-allowed"
-              : added ? "bg-green-500 text-white"
-              : "bg-zinc-900 text-white hover:bg-zinc-700"
-            }`}>
-            {!product.isInStock ? "—" : added ? "✓" : "+"}
-          </button>
+          <Link href={`/product/${product.id}`}
+            className="text-xs font-bold px-3.5 py-2 rounded-xl bg-zinc-900 text-white hover:bg-zinc-700 transition-all duration-300">
+            Quick View
+          </Link>
         </div>
       </div>
     </article>
@@ -194,10 +179,8 @@ function GridCard({ product }: { product: ApiProduct }) {
 
 /* ─── List row ───────────────────────────────────────────── */
 function ListRow({ product }: { product: ApiProduct }) {
-  const { addItem }       = useCart();
   const { toggle, isFav } = useFavorites();
   const { getReviews }    = useReviews();
-  const [added, setAdded] = useState(false);
 
   const fav             = isFav(product.id);
   const activeDiscount  = product.discountPercent ?? null;
@@ -211,14 +194,6 @@ function ListRow({ product }: { product: ApiProduct }) {
   const displayRating   = localReviews.length > 0
     ? localReviews.reduce((s, r) => s + r.rating, 0) / localReviews.length
     : product.rating;
-
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!product.isInStock) return;
-    addItem(product as any, product.sizes[0] ?? 9, product.colors[0]?.name ?? "Default");
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
-  };
 
   return (
     <article className="flex gap-5 bg-white border border-zinc-100 hover:border-zinc-200 rounded-2xl overflow-hidden p-4 transition-all duration-300 hover:shadow-lg hover:shadow-zinc-100">
@@ -284,14 +259,10 @@ function ListRow({ product }: { product: ApiProduct }) {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
-            <button onClick={handleAdd} disabled={!product.isInStock}
-              className={`text-xs font-bold px-4 py-2.5 rounded-xl transition-all duration-300 ${
-                !product.isInStock ? "bg-zinc-100 text-zinc-400 cursor-not-allowed"
-                : added ? "bg-green-500 text-white"
-                : "bg-zinc-900 text-white hover:bg-zinc-700"
-              }`}>
-              {!product.isInStock ? "Out of Stock" : added ? "✓ Added" : "Add to Cart"}
-            </button>
+            <Link href={`/product/${product.id}`}
+              className="text-xs font-bold px-4 py-2.5 rounded-xl bg-zinc-900 text-white hover:bg-zinc-700 transition-all duration-300">
+              Quick View
+            </Link>
           </div>
         </div>
       </div>

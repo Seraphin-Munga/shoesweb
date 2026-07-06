@@ -1,22 +1,24 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
 import { useFavorites } from "../context/FavoritesContext";
-import { fetchMyOrders } from "../lib/api";
+import { fetchMyOrders, sendOtpApi, verifyOtpApi, forgotPasswordApi } from "../lib/api";
 
-/* ── Sign In form ─────────────────────────────────────────────── */
+/* ── Sign In form (with inline forgot-password flow) ──────────── */
 function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?: () => void }) {
   const { signIn, loading } = useAuth();
-  const [email, setEmail]   = useState("");
-  const [pass, setPass]     = useState("");
-  const [error, setError]   = useState("");
+  const [step,  setStep]  = useState<"signin" | "forgot" | "sent">("signin");
+  const [email, setEmail] = useState("");
+  const [pass,  setPass]  = useState("");
+  const [error, setError] = useState("");
+  const [busy,  setBusy]  = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     try {
@@ -27,8 +29,94 @@ function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
     }
   };
 
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(""); setBusy(true);
+    try {
+      await forgotPasswordApi(email.trim().toLowerCase());
+      setStep("sent");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const isLoading = loading || busy;
+
+  /* ── Forgot: email sent confirmation ── */
+  if (step === "sent") {
+    return (
+      <div className="space-y-6 text-center">
+        <div className="w-16 h-16 rounded-full bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto">
+          <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-lg font-black text-zinc-900 mb-2">Check your inbox</h2>
+          <p className="text-sm text-zinc-500 leading-relaxed">
+            If <span className="font-semibold text-zinc-800">{email}</span> is registered, we&apos;ve sent a reset link. Check your email and click the link to set a new password.
+          </p>
+        </div>
+        <button type="button" onClick={() => { setStep("signin"); setError(""); }}
+          className="w-full border border-zinc-200 hover:border-zinc-900 text-zinc-700 font-semibold py-3.5 rounded-xl text-sm transition-colors">
+          Back to Sign In
+        </button>
+      </div>
+    );
+  }
+
+  /* ── Forgot: enter email ── */
+  if (step === "forgot") {
+    return (
+      <form onSubmit={handleForgot} className="space-y-5">
+        <button type="button" onClick={() => { setStep("signin"); setError(""); }}
+          className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Sign In
+        </button>
+
+        <div>
+          <h2 className="text-lg font-black text-zinc-900 mb-1">Forgot your password?</h2>
+          <p className="text-sm text-zinc-500">Enter your email and we&apos;ll send you a reset link.</p>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Email address</label>
+          <input type="email" required autoComplete="email" value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+        </div>
+
+        {error && (
+          <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+            <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-px" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-xs text-red-600">{error}</p>
+          </div>
+        )}
+
+        <button type="submit" disabled={isLoading}
+          className="w-full bg-zinc-900 text-white font-bold py-3.5 rounded-xl hover:bg-zinc-700 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-60">
+          {isLoading ? (
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+          ) : "Send Reset Link"}
+        </button>
+      </form>
+    );
+  }
+
+  /* ── Normal sign in ── */
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSignIn} className="space-y-5">
       <div>
         <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Email address</label>
         <input type="email" required autoComplete="email" value={email}
@@ -40,7 +128,8 @@ function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
       <div>
         <div className="flex items-center justify-between mb-1.5">
           <label className="text-xs font-semibold text-zinc-700">Password</label>
-          <button type="button" className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors">
+          <button type="button" onClick={() => { setStep("forgot"); setError(""); }}
+            className="text-xs text-zinc-400 hover:text-zinc-700 transition-colors">
             Forgot password?
           </button>
         </div>
@@ -79,64 +168,240 @@ function SignInForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
   );
 }
 
-/* ── Sign Up form ─────────────────────────────────────────────── */
+/* ── Sign Up form (3 steps: details → OTP → done) ────────────── */
 function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?: () => void }) {
   const { signUp, loading } = useAuth();
-  const [form, setForm] = useState({ firstName: "", lastName: "", email: "", password: "", confirm: "" });
+  const [step,  setStep]  = useState<"details" | "otp">("details");
+  const [form,  setForm]  = useState({ firstName: "", lastName: "", email: "", password: "", confirm: "" });
+  const [otp,   setOtp]   = useState(["", "", "", "", "", ""]);
   const [error, setError] = useState("");
+  const [busy,  setBusy]  = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  /* ── Countdown timer for resend ── */
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  /* ── Step 1: validate form & send OTP ── */
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     if (form.password !== form.confirm) { setError("Passwords don't match."); return; }
-    if (form.password.length < 6)       { setError("Password must be at least 6 characters."); return; }
+    if (form.password.length < 8)       { setError("Password must be at least 8 characters."); return; }
+    setBusy(true);
     try {
-      await signUp(form.firstName, form.lastName, form.email, form.password);
-      onSuccess?.();
+      await sendOtpApi(form.email.trim().toLowerCase());
+      setOtp(["", "", "", "", "", ""]);
+      setStep("otp");
+      setCountdown(60);
+      setTimeout(() => inputRefs.current[0]?.focus(), 100);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.");
+      setError(err instanceof Error ? err.message : "Failed to send code.");
+    } finally {
+      setBusy(false);
     }
   };
 
+  /* ── Step 2: OTP digit input ── */
+  const handleOtpKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !otp[i] && i > 0) {
+      inputRefs.current[i - 1]?.focus();
+    }
+  };
+
+  const handleOtpChange = (i: number, val: string) => {
+    const digit = val.replace(/\D/, "").slice(-1);
+    const next = [...otp];
+    next[i] = digit;
+    setOtp(next);
+    setError("");
+    if (digit && i < 5) inputRefs.current[i + 1]?.focus();
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
+    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (text.length === 6) {
+      setOtp(text.split(""));
+      inputRefs.current[5]?.focus();
+    }
+  };
+
+  /* ── Step 2: verify OTP then register ── */
+  const handleVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = otp.join("");
+    if (code.length < 6) { setError("Please enter the full 6-digit code."); return; }
+    setError("");
+    setBusy(true);
+    try {
+      await verifyOtpApi(form.email.trim().toLowerCase(), code);
+      await signUp(form.firstName, form.lastName, form.email, form.password);
+      onSuccess?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Verification failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /* ── Resend OTP ── */
+  const handleResend = async () => {
+    if (countdown > 0) return;
+    setError(""); setBusy(true);
+    try {
+      await sendOtpApi(form.email.trim().toLowerCase());
+      setOtp(["", "", "", "", "", ""]);
+      setCountdown(60);
+      inputRefs.current[0]?.focus();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to resend.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const isLoading = busy || loading;
+
+  /* ──────────────────── Step 1: Registration details ──────────────────── */
+  if (step === "details") {
+    return (
+      <form onSubmit={handleSendOtp} className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1.5">First name</label>
+            <input type="text" required value={form.firstName} onChange={set("firstName")}
+              placeholder="Jane"
+              className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Last name</label>
+            <input type="text" required value={form.lastName} onChange={set("lastName")}
+              placeholder="Doe"
+              className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Email address</label>
+          <input type="email" required autoComplete="email" value={form.email} onChange={set("email")}
+            placeholder="you@example.com"
+            className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Password</label>
+          <input type="password" required autoComplete="new-password" value={form.password} onChange={set("password")}
+            placeholder="Min. 8 characters"
+            className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Confirm password</label>
+          <input type="password" required autoComplete="new-password" value={form.confirm} onChange={set("confirm")}
+            placeholder="••••••••"
+            className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+        </div>
+
+        {error && (
+          <div className="flex items-start gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+            <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-px" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <p className="text-xs text-red-600">{error}</p>
+          </div>
+        )}
+
+        <label className="flex items-start gap-2 cursor-pointer">
+          <input type="checkbox" required className="mt-0.5 accent-zinc-900" />
+          <span className="text-xs text-zinc-500">
+            I agree to the{" "}
+            <a href="#" className="font-semibold text-zinc-900 hover:underline">Terms of Service</a>
+            {" "}and{" "}
+            <a href="#" className="font-semibold text-zinc-900 hover:underline">Privacy Policy</a>
+          </span>
+        </label>
+
+        <button type="submit" disabled={isLoading}
+          className="w-full bg-zinc-900 text-white font-bold py-3.5 rounded-xl hover:bg-zinc-700 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-60">
+          {isLoading ? (
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+            </svg>
+          ) : (
+            <>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Send Verification Code
+            </>
+          )}
+        </button>
+
+        <p className="text-center text-sm text-zinc-500">
+          Already have an account?{" "}
+          <button type="button" onClick={onSwitch} className="font-semibold text-zinc-900 hover:underline">
+            Sign in
+          </button>
+        </p>
+      </form>
+    );
+  }
+
+  /* ──────────────────── Step 2: OTP verification ──────────────────── */
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">First name</label>
-          <input type="text" required value={form.firstName} onChange={set("firstName")}
-            placeholder="Jane"
-            className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+    <form onSubmit={handleVerify} className="space-y-6">
+      {/* Back */}
+      <button type="button" onClick={() => { setStep("details"); setError(""); }}
+        className="flex items-center gap-1.5 text-xs font-semibold text-zinc-500 hover:text-zinc-900 transition-colors">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
+      {/* Email sent notice */}
+      <div className="bg-zinc-50 border border-zinc-200 rounded-2xl px-5 py-4 text-center">
+        <div className="w-12 h-12 rounded-full bg-zinc-900 flex items-center justify-center mx-auto mb-3">
+          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Last name</label>
-          <input type="text" required value={form.lastName} onChange={set("lastName")}
-            placeholder="Doe"
-            className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+        <p className="text-sm font-bold text-zinc-900 mb-1">Check your email</p>
+        <p className="text-xs text-zinc-500">
+          We sent a 6-digit code to<br />
+          <span className="font-semibold text-zinc-800">{form.email}</span>
+        </p>
+      </div>
+
+      {/* 6-digit OTP input */}
+      <div>
+        <label className="block text-xs font-semibold text-zinc-700 mb-3 text-center">Enter verification code</label>
+        <div className="flex gap-2 justify-center" onPaste={handleOtpPaste}>
+          {otp.map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => { inputRefs.current[i] = el; }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleOtpChange(i, e.target.value)}
+              onKeyDown={(e) => handleOtpKey(i, e)}
+              className={`w-11 h-14 text-center text-xl font-black border-2 rounded-xl outline-none transition-all ${
+                digit ? "border-zinc-900 bg-zinc-50" : "border-zinc-200 bg-white"
+              } focus:border-zinc-900`}
+            />
+          ))}
         </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Email address</label>
-        <input type="email" required autoComplete="email" value={form.email} onChange={set("email")}
-          placeholder="you@example.com"
-          className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
-      </div>
-
-      <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Password</label>
-        <input type="password" required autoComplete="new-password" value={form.password} onChange={set("password")}
-          placeholder="Min. 6 characters"
-          className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
-      </div>
-
-      <div>
-        <label className="block text-xs font-semibold text-zinc-700 mb-1.5">Confirm password</label>
-        <input type="password" required autoComplete="new-password" value={form.confirm} onChange={set("confirm")}
-          placeholder="••••••••"
-          className="w-full border border-zinc-200 focus:border-zinc-900 rounded-xl px-4 py-3 text-sm outline-none transition-colors placeholder-zinc-400" />
+        <p className="text-center text-xs text-zinc-400 mt-2">Code expires in 10 minutes</p>
       </div>
 
       {error && (
@@ -148,31 +413,27 @@ function SignUpForm({ onSwitch, onSuccess }: { onSwitch: () => void; onSuccess?:
         </div>
       )}
 
-      <label className="flex items-start gap-2 cursor-pointer">
-        <input type="checkbox" required className="mt-0.5 accent-zinc-900" />
-        <span className="text-xs text-zinc-500">
-          I agree to the{" "}
-          <a href="#" className="font-semibold text-zinc-900 hover:underline">Terms of Service</a>
-          {" "}and{" "}
-          <a href="#" className="font-semibold text-zinc-900 hover:underline">Privacy Policy</a>
-        </span>
-      </label>
-
-      <button type="submit" disabled={loading}
+      <button type="submit" disabled={isLoading || otp.join("").length < 6}
         className="w-full bg-zinc-900 text-white font-bold py-3.5 rounded-xl hover:bg-zinc-700 transition-colors text-sm flex items-center justify-center gap-2 disabled:opacity-60">
-        {loading ? (
+        {isLoading ? (
           <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
           </svg>
-        ) : "Create Account"}
+        ) : "Verify & Create Account"}
       </button>
 
+      {/* Resend */}
       <p className="text-center text-sm text-zinc-500">
-        Already have an account?{" "}
-        <button type="button" onClick={onSwitch} className="font-semibold text-zinc-900 hover:underline">
-          Sign in
-        </button>
+        Didn&apos;t receive the code?{" "}
+        {countdown > 0 ? (
+          <span className="text-zinc-400">Resend in {countdown}s</span>
+        ) : (
+          <button type="button" onClick={handleResend} disabled={isLoading}
+            className="font-semibold text-zinc-900 hover:underline disabled:opacity-50">
+            Resend code
+          </button>
+        )}
       </p>
     </form>
   );

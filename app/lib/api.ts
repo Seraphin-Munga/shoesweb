@@ -379,6 +379,46 @@ export async function loginApi(email: string, password: string) {
   return json.data;
 }
 
+export async function forgotPasswordApi(email: string) {
+  const res = await fetch(`${BASE}/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const json: ApiResponse<null> = await res.json();
+  if (!json.success) throw new Error(json.message);
+}
+
+export async function resetPasswordApi(email: string, token: string, newPassword: string) {
+  const res = await fetch(`${BASE}/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, token, newPassword }),
+  });
+  const json: ApiResponse<null> = await res.json();
+  if (!json.success) throw new Error(json.message);
+}
+
+export async function sendOtpApi(email: string) {
+  const res = await fetch(`${BASE}/auth/send-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const json: ApiResponse<null> = await res.json();
+  if (!json.success) throw new Error(json.message);
+}
+
+export async function verifyOtpApi(email: string, code: string) {
+  const res = await fetch(`${BASE}/auth/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+  const json: ApiResponse<null> = await res.json();
+  if (!json.success) throw new Error(json.message);
+}
+
 export async function refreshTokenApi(accessToken: string, refreshToken: string) {
   const res = await fetch(`${BASE}/auth/refresh-token`, {
     method: "POST",

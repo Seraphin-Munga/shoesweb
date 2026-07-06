@@ -37,7 +37,7 @@ function ColorModal({ color, token, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h3 className="font-black text-zinc-900 mb-5">{isEdit ? `Edit — ${color!.name}` : "Add New Color"}</h3>
+        <h3 className="font-black text-zinc-900 mb-5">{isEdit ? `Edit, ${color!.name}` : "Add New Color"}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">{error}</p>}
 
@@ -156,7 +156,7 @@ export default function AdminColorsPage() {
         ].map(({ label, value }) => (
           <div key={label} className="bg-white border border-zinc-100 rounded-2xl px-5 py-4">
             <p className="text-xs text-zinc-400 uppercase tracking-widest font-bold mb-1">{label}</p>
-            <p className="text-2xl font-black text-zinc-900">{loading ? "—" : value}</p>
+            <p className="text-2xl font-black text-zinc-900">{loading ? "-" : value}</p>
           </div>
         ))}
       </div>

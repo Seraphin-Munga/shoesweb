@@ -197,7 +197,7 @@ export default function CookieBanner() {
               {/* Cookie types */}
               <div className="px-6 py-4 space-y-4 max-h-72 overflow-y-auto">
 
-                {/* Necessary — always on */}
+                {/* Necessary, always on */}
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">

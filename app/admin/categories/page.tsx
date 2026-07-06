@@ -61,7 +61,7 @@ function CategoryModal({ category, token, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h3 className="font-black text-zinc-900 mb-5">{isEdit ? `Edit — ${category!.name}` : "New Category"}</h3>
+        <h3 className="font-black text-zinc-900 mb-5">{isEdit ? `Edit, ${category!.name}` : "New Category"}</h3>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <p className="text-xs text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3">{error}</p>}
           <div>
@@ -261,15 +261,15 @@ function CategoryCard({ cat, token, onEdit, onDelete, onImageUploaded }: {
         <div className="grid grid-cols-3 gap-3 pt-3 border-t border-zinc-50 text-center">
           <div>
             <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide mb-0.5">Min</p>
-            <p className="text-xs font-bold text-zinc-900">{cat.minPrice ? formatZar(cat.minPrice) : "—"}</p>
+            <p className="text-xs font-bold text-zinc-900">{cat.minPrice ? formatZar(cat.minPrice) : "-"}</p>
           </div>
           <div>
             <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide mb-0.5">Avg</p>
-            <p className="text-xs font-bold text-zinc-900">{cat.avgPrice ? formatZar(cat.avgPrice) : "—"}</p>
+            <p className="text-xs font-bold text-zinc-900">{cat.avgPrice ? formatZar(cat.avgPrice) : "-"}</p>
           </div>
           <div>
             <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wide mb-0.5">Max</p>
-            <p className="text-xs font-bold text-zinc-900">{cat.maxPrice ? formatZar(cat.maxPrice) : "—"}</p>
+            <p className="text-xs font-bold text-zinc-900">{cat.maxPrice ? formatZar(cat.maxPrice) : "-"}</p>
           </div>
         </div>
 
@@ -318,10 +318,10 @@ export default function AdminCategoriesPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Total Categories",  value: loading ? "—" : String(categories.length) },
-          { label: "Total Products",    value: loading ? "—" : String(totalProducts) },
-          { label: "Most Popular",      value: loading || !mostPopular ? "—" : mostPopular.name },
-          { label: "Highest Avg Price", value: loading || !highestAvgCat ? "—" : formatZar(highestAvgCat.avgPrice ?? 0) },
+          { label: "Total Categories",  value: loading ? "-" : String(categories.length) },
+          { label: "Total Products",    value: loading ? "-" : String(totalProducts) },
+          { label: "Most Popular",      value: loading || !mostPopular ? "-" : mostPopular.name },
+          { label: "Highest Avg Price", value: loading || !highestAvgCat ? "-" : formatZar(highestAvgCat.avgPrice ?? 0) },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white border border-zinc-100 rounded-2xl p-5">
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">{label}</p>

@@ -9,11 +9,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   try {
     const product = await fetchProduct(Number(id));
     return {
-      title: `${product.name} — STRYDE`,
+      title: `${product.name}, STRYDE`,
       description: product.description ?? `${product.name} by ${product.brand}`,
     };
   } catch {
-    return { title: "Product — STRYDE" };
+    return { title: "Product, STRYDE" };
   }
 }
 

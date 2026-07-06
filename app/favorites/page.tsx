@@ -201,7 +201,7 @@ export default function FavoritesPage() {
                               ? "bg-green-500 text-white"
                               : "bg-zinc-900 text-white hover:bg-zinc-700"
                           }`}>
-                          {!p.isInStock ? "—" : added[p.id] ? "✓" : "Add"}
+                          {!p.isInStock ? "-" : added[p.id] ? "✓" : "Add"}
                         </button>
                       </div>
                     </div>

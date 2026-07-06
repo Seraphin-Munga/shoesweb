@@ -15,7 +15,7 @@ export default async function Hero() {
     return (
       <section className="relative min-h-screen flex items-center justify-center pt-16 bg-zinc-950">
         <p className="text-zinc-500 text-sm">
-          No banner content — configure it in{" "}
+          No banner content, configure it in{" "}
           <span className="font-bold text-zinc-300">/admin → Hero Banner</span>.
         </p>
       </section>
@@ -33,7 +33,7 @@ export default async function Hero() {
   return (
     <section className="relative min-h-screen bg-zinc-950 pt-16 overflow-hidden">
 
-      {/* ── Right-half image — absolutely positioned, full clarity ── */}
+      {/* ── Right-half image, absolutely positioned, full clarity ── */}
       <div className="absolute inset-y-0 right-0 w-full lg:w-[55%]">
         <Image
           src={bannerSrc}
@@ -44,7 +44,7 @@ export default async function Hero() {
           unoptimized={isExternalImg}
           priority
         />
-        {/* Fade edge — blends into dark left panel on desktop only */}
+        {/* Fade edge, blends into dark left panel on desktop only */}
         <div className="hidden lg:block absolute inset-y-0 left-0 w-40 bg-gradient-to-r from-zinc-950 to-transparent" />
         {/* Dark tint for mobile so text stays readable */}
         <div className="lg:hidden absolute inset-0 bg-zinc-950/75" />

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({ status: 1 }),
       });
     } catch {
-      // Log silently — PayFast needs a 200 even if our update fails
+      // Log silently, PayFast needs a 200 even if our update fails
     }
   }
 

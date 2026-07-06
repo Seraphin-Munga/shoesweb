@@ -86,7 +86,7 @@ export const products: Product[] = [
       { name: "Ivory",   hex: "#f8f9fa" },
     ],
     description:
-      "Timeless design meets modern comfort. The Classic Luxe is crafted from premium materials with meticulous attention to detail — a shoe that only gets better with time.",
+      "Timeless design meets modern comfort. The Classic Luxe is crafted from premium materials with meticulous attention to detail, a shoe that only gets better with time.",
     features: [
       "Full-grain leather upper (sustainably sourced)",
       "Memory foam insole for all-day luxury",
@@ -110,7 +110,7 @@ export const products: Product[] = [
       { name: "Black",   hex: "#212529" },
     ],
     description:
-      "The Street Edge V2 is for those who move with purpose. Chunky sole, bold silhouette, and STRYDE's most durable upper yet — built to handle whatever the city throws at you.",
+      "The Street Edge V2 is for those who move with purpose. Chunky sole, bold silhouette, and STRYDE's most durable upper yet, built to handle whatever the city throws at you.",
     features: [
       "Chunky platform sole with extra grip",
       "Reinforced toe cap for impact protection",
@@ -135,7 +135,7 @@ export const products: Product[] = [
       { name: "White",   hex: "#ffffff" },
     ],
     description:
-      "A limited-edition masterpiece. The Cloud Walk Elite uses our most advanced CloudFoam technology for a sensation unlike any other — it's the closest thing to walking on air.",
+      "A limited-edition masterpiece. The Cloud Walk Elite uses our most advanced CloudFoam technology for a sensation unlike any other, it's the closest thing to walking on air.",
     features: [
       "Multi-layer CloudFoam stack (patent pending)",
       "Knit upper with zero-pressure seams",
@@ -185,7 +185,7 @@ export const products: Product[] = [
       { name: "White",   hex: "#f8fafc" },
     ],
     description:
-      "Speed is everything. The Velocity Sprint is stripped back for maximum performance — a racing flat-inspired silhouette with the cushioning you need for long distances.",
+      "Speed is everything. The Velocity Sprint is stripped back for maximum performance, a racing flat-inspired silhouette with the cushioning you need for long distances.",
     features: [
       "Ultra-lightweight at 185g per shoe",
       "Propulsion plate for faster turnover",

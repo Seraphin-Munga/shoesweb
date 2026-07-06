@@ -159,7 +159,7 @@ export default function AdminAnalyticsPage() {
                   <div className="mt-3 pt-3 border-t border-zinc-200">
                     <p className="text-xs text-zinc-500">Avg. price</p>
                     <p className="text-sm font-black text-zinc-900">
-                      {c.avgPrice != null ? formatZar(c.avgPrice) : "—"}
+                      {c.avgPrice != null ? formatZar(c.avgPrice) : "-"}
                     </p>
                   </div>
                 </div>

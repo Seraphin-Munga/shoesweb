@@ -7,7 +7,7 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Fenwalk — Premium Footwear",
+  title: "Fenwalk | Premium Footwear",
   description: "Step into excellence. Shop the finest footwear crafted for performance and style.",
 };
 

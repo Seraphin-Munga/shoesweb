@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const VALUES = [
-  { title: "Performance First",    body: "Every shoe is engineered for real-world conditions — whether that's a 5K road or a mountain trail." },
+  { title: "Performance First",    body: "Every shoe is engineered for real-world conditions, whether that's a 5K road or a mountain trail." },
   { title: "Sustainable Design",   body: "We're committed to reducing our footprint through recycled materials and responsible manufacturing." },
   { title: "Inclusive Fit",        body: "Great footwear belongs to everyone. Our size range and width options reflect that belief." },
   { title: "Community Driven",     body: "Our community of runners, walkers, and explorers shapes every product decision we make." },
@@ -49,7 +49,7 @@ export default function AboutPage() {
             </p>
             <p className="text-zinc-500 leading-relaxed">
               Our team of designers, athletes, and material scientists work together to push the boundaries
-              of what footwear can be — without the inflated mark-up.
+              of what footwear can be, without the inflated mark-up.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">

@@ -6,7 +6,7 @@ import Features from "./components/Features";
 import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
 
-// Never cache this route — all content (hero, products) comes from the live API
+// Never cache this route, all content (hero, products) comes from the live API
 export const dynamic = "force-dynamic";
 
 export default function Home() {

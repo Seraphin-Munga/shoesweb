@@ -241,7 +241,7 @@ export default function AdminOrdersPage() {
     setDrawer(updated);
   };
 
-  /* Count per status from current page (rough — full counts need separate API calls) */
+  /* Count per status from current page (rough, full counts need separate API calls) */
   const counts = ALL_STATUSES.reduce<Record<number, number>>((acc, s) => {
     acc[s] = orders.filter((o) => o.status === s).length;
     return acc;

@@ -183,7 +183,7 @@ function RecentOrders({ orders }: { orders: ApiDashboardOrder[] }) {
             <tbody className="divide-y divide-zinc-50">
               {orders.map((o) => {
                 const sc = STATUS_CONFIG[o.status] ?? STATUS_CONFIG[0];
-                const product = o.items.map((i) => i.productName).join(", ") || "—";
+                const product = o.items.map((i) => i.productName).join(", ") || "-";
                 return (
                   <tr key={o.id} className="hover:bg-zinc-50/50 transition-colors">
                     <td className="py-3 pr-4 font-mono text-xs font-bold text-zinc-500">{orderLabel(o.id)}</td>

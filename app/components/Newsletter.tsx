@@ -37,7 +37,7 @@ export default function Newsletter() {
         </h2>
         <p className="text-zinc-400 text-base leading-relaxed mb-10">
           Join the FENWALK community. Early access to drops, member discounts,
-          and style inspiration — straight to your inbox.
+          and style inspiration, straight to your inbox.
         </p>
 
         {submitted ? (

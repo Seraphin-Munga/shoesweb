@@ -99,7 +99,7 @@ export default function AdminCustomersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-xs font-semibold text-zinc-500">{c.country || "—"}</td>
+                    <td className="px-5 py-4 text-xs font-semibold text-zinc-500">{c.country || "-"}</td>
                     <td className="px-5 py-4 text-xs font-bold text-zinc-900">{c.orderCount}</td>
                     <td className="px-5 py-4">
                       <div className="font-bold text-zinc-900 text-xs">{formatZar(c.totalSpent)}</div>

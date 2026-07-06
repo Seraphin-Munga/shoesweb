@@ -78,7 +78,7 @@ function PromoModal({ promo, token, onClose, onSaved }: {
       <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 overflow-y-auto max-h-[90vh]">
         <h3 className="font-black text-zinc-900 mb-5 text-lg">
-          {isEdit ? `Edit — ${promo!.code}` : "New Promo Code"}
+          {isEdit ? `Edit, ${promo!.code}` : "New Promo Code"}
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -373,7 +373,7 @@ export default function AdminPromoCodesPage() {
 
                       {/* Min order */}
                       <td className="px-6 py-4 text-zinc-500 text-xs">
-                        {promo.minOrderZar != null ? `R${promo.minOrderZar.toFixed(0)}` : "—"}
+                        {promo.minOrderZar != null ? `R${promo.minOrderZar.toFixed(0)}` : "-"}
                       </td>
 
                       {/* Expires */}

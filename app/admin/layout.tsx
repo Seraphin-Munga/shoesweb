@@ -35,10 +35,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  /* Login page — no sidebar */
+  /* Login page, no sidebar */
   if (isLoginPage) return <>{children}</>;
 
-  /* Not authed yet — render nothing while redirect fires */
+  /* Not authed yet, render nothing while redirect fires */
   if (!admin) return null;
 
   /* Authenticated admin shell */

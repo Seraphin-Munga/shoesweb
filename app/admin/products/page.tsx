@@ -68,7 +68,7 @@ function DiscountModal({ product, token, onClose, onSaved }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
-        <h3 className="font-black text-zinc-900 mb-1">Discount — {product.name}</h3>
+        <h3 className="font-black text-zinc-900 mb-1">Discount, {product.name}</h3>
         <p className="text-xs text-zinc-400 mb-5">Base price: {formatZar(product.price)}</p>
         <form onSubmit={handleSave} className="space-y-4">
           {error && <p className="text-xs text-red-500">{error}</p>}
@@ -251,7 +251,7 @@ function ProductModal({ product, apiCategories, apiColors, token, onClose, onSav
       <div className="absolute inset-0 bg-zinc-900/50 backdrop-blur-sm" onClick={onClose} />
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
-          <h2 className="font-black text-zinc-900 text-base">{isEdit ? `Edit — ${product!.name}` : "Add New Product"}</h2>
+          <h2 className="font-black text-zinc-900 text-base">{isEdit ? `Edit, ${product!.name}` : "Add New Product"}</h2>
           <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -268,7 +268,7 @@ function ProductModal({ product, apiCategories, apiColors, token, onClose, onSav
               <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest">
                 Product Images
               </label>
-              <span className="text-[10px] text-zinc-400">{images.length} / {MAX_IMAGES} — first image is main</span>
+              <span className="text-[10px] text-zinc-400">{images.length} / {MAX_IMAGES}, first image is main</span>
             </div>
 
             {/* Thumbnails */}
@@ -431,11 +431,11 @@ function ProductModal({ product, apiCategories, apiColors, token, onClose, onSav
             <RichTextEditor
               value={form.description}
               onChange={(html) => set("description", html)}
-              placeholder="Describe the product — materials, fit, features…"
+              placeholder="Describe the product, materials, fit, features…"
             />
           </div>
 
-          {/* Colors — multi-select from API */}
+          {/* Colors, multi-select from API */}
           {apiColors.length > 0 && (
             <div>
               <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest block mb-2">Colors</label>
@@ -453,7 +453,7 @@ function ProductModal({ product, apiCategories, apiColors, token, onClose, onSav
                   </button>
                 ))}
               </div>
-              {form.colorIds.length === 0 && <p className="text-[10px] text-zinc-400 mt-1">No colors selected — all colors available.</p>}
+              {form.colorIds.length === 0 && <p className="text-[10px] text-zinc-400 mt-1">No colors selected, all colors available.</p>}
             </div>
           )}
 
@@ -519,7 +519,7 @@ function DeleteConfirm({ product, token, onClose, onDeleted }: {
         </div>
         <h3 className="font-black text-zinc-900 mb-1">Delete product?</h3>
         <p className="text-sm text-zinc-500 mb-1">{product.name}</p>
-        <p className="text-xs text-zinc-400 mb-5">Soft-deleted — can be restored from the database.</p>
+        <p className="text-xs text-zinc-400 mb-5">Soft-deleted, can be restored from the database.</p>
         {error && <p className="text-xs text-red-500 mb-3">{error}</p>}
         <div className="flex gap-3">
           <button onClick={onClose} className="flex-1 py-2.5 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-600 hover:border-zinc-400 transition-colors">Cancel</button>
@@ -685,7 +685,7 @@ export default function AdminProductsPage() {
                     </span>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="text-xs font-semibold bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-full">{p.category ?? "—"}</span>
+                    <span className="text-xs font-semibold bg-zinc-100 text-zinc-600 px-2.5 py-1 rounded-full">{p.category ?? "-"}</span>
                   </td>
                   <td className="px-5 py-4">
                     <span className="font-bold text-zinc-900">{formatZar(p.price)}</span>
@@ -711,7 +711,7 @@ export default function AdminProductsPage() {
                       <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">
                         {p.discountPercent}% off
                       </span>
-                    ) : <span className="text-xs text-zinc-300">—</span>}
+                    ) : <span className="text-xs text-zinc-300"></span>}
                   </td>
                   <td className="px-5 py-4">
                     <span className={`inline-flex text-[10px] font-bold px-2.5 py-1 rounded-full ${

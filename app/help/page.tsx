@@ -8,7 +8,7 @@ const FAQS = [
     section: "Orders & Shipping",
     items: [
       { q: "How long does delivery take?",            a: "Standard delivery takes 3–5 business days within South Africa. Express (1–2 days) is available at checkout. Free standard shipping on orders over R1,500." },
-      { q: "Can I track my order?",                   a: "Yes — once your order ships you'll receive an email with a tracking link. You can also track via the Order Status page in your account." },
+      { q: "Can I track my order?",                   a: "Yes, once your order ships you'll receive an email with a tracking link. You can also track via the Order Status page in your account." },
       { q: "Can I change or cancel my order?",        a: "Orders can be changed or cancelled within 1 hour of placing them. After that, the order may have already been picked and packed. Contact us immediately at info@fenwalk.com." },
       { q: "Do you ship internationally?",            a: "We currently ship to South Africa, Namibia, Botswana, Zimbabwe, Zambia, and Mozambique. International expansion is coming in 2027." },
     ],
@@ -18,7 +18,7 @@ const FAQS = [
     items: [
       { q: "What is your return policy?",             a: "You have 5 days from delivery to return unworn shoes in original packaging. Worn or damaged items are not eligible. See our full Returns page for details." },
       { q: "How long do refunds take?",               a: "Once we receive your return, we process the refund within 2 business days. It may take a further 3–5 days to appear on your statement depending on your bank." },
-      { q: "Can I exchange for a different size?",    a: "Yes. Simply return the original pair and place a new order for the correct size — we'll expedite your replacement order. Contact us for help." },
+      { q: "Can I exchange for a different size?",    a: "Yes. Simply return the original pair and place a new order for the correct size, we'll expedite your replacement order. Contact us for help." },
     ],
   },
   {
@@ -32,7 +32,7 @@ const FAQS = [
   {
     section: "Account & Payment",
     items: [
-      { q: "What payment methods do you accept?",     a: "Visa, Mastercard, Amex, PayPal, and EFT. We do not store card details — all payments are processed via Stripe." },
+      { q: "What payment methods do you accept?",     a: "Visa, Mastercard, Amex, PayPal, and EFT. We do not store card details, all payments are processed via Stripe." },
       { q: "Is my payment information secure?",       a: "Yes. We use TLS encryption and PCI-compliant payment processing. We never see or store your full card number." },
       { q: "How do I reset my password?",             a: "Click 'Forgot password' on the login page and we'll email you a reset link within 5 minutes. Check your spam folder if it doesn't arrive." },
     ],

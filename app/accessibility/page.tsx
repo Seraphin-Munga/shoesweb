@@ -41,7 +41,7 @@ export default function AccessibilityPage() {
           Current known limitations include:
         </p>
         <ul className="text-sm text-zinc-500 space-y-2 mb-10 ml-4">
-          <li className="flex items-start gap-2"><span className="text-zinc-300 flex-shrink-0 mt-1">•</span> Some older product images may be missing detailed alt text — we are updating these progressively.</li>
+          <li className="flex items-start gap-2"><span className="text-zinc-300 flex-shrink-0 mt-1">•</span> Some older product images may be missing detailed alt text, we are updating these progressively.</li>
           <li className="flex items-start gap-2"><span className="text-zinc-300 flex-shrink-0 mt-1">•</span> The size selector on product pages may not announce changes clearly in all screen readers.</li>
         </ul>
 

@@ -2,7 +2,7 @@ const PILLARS = [
   {
     icon: "🌱",
     title: "Sustainable Materials",
-    body: "By 2027, 75% of our materials will come from recycled or responsibly sourced inputs — including ocean plastics, reclaimed rubber, and organic cotton.",
+    body: "By 2027, 75% of our materials will come from recycled or responsibly sourced inputs, including ocean plastics, reclaimed rubber, and organic cotton.",
     stat: "40%",
     statLabel: "Recycled content today",
   },
@@ -50,7 +50,7 @@ export default function SustainabilityPage() {
             <span className="text-zinc-400">Better planet.</span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed max-w-xl">
-            Sustainability isn't a marketing add-on for us — it's built into every decision
+            Sustainability isn't a marketing add-on for us, it's built into every decision
             from material sourcing to the box your shoes arrive in.
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function SustainabilityPage() {
           <h2 className="text-2xl font-black text-zinc-900 mb-3">Transparency matters</h2>
           <p className="text-zinc-400 text-sm mb-6 leading-relaxed max-w-xl mx-auto">
             We publish an annual sustainability report with independently verified data.
-            No greenwashing — just honest progress.
+            No greenwashing, just honest progress.
           </p>
           <a href="#"
             className="inline-block border border-zinc-200 text-zinc-700 font-bold text-sm px-8 py-3.5 rounded-full hover:border-zinc-400 transition-colors">

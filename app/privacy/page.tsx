@@ -4,7 +4,7 @@ const SECTIONS = [
     body: `We collect information you provide directly to us when you create an account, place an order, subscribe to our newsletter, or contact us. This includes:
 
 • Name, email address, phone number, and delivery address
-• Payment information (processed securely via Stripe — we never store full card details)
+• Payment information (processed securely via Stripe, we never store full card details)
 • Order history and preferences
 • Communications you send us
 
@@ -25,7 +25,7 @@ We also collect certain information automatically when you use our website, incl
     title: "3. Sharing Your Information",
     body: `We do not sell your personal information. We share your data only with:
 
-• Service providers who help us operate our business (courier companies, payment processors, email platforms) — under strict confidentiality agreements
+• Service providers who help us operate our business (courier companies, payment processors, email platforms), under strict confidentiality agreements
 • Law enforcement or regulatory bodies when legally required
 • Business successors in the event of a merger, acquisition, or sale of assets
 

@@ -67,7 +67,7 @@ export default function SizeGuidePage() {
             <span className="text-zinc-400">perfect fit.</span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed max-w-xl">
-            Use our size charts to find the right size in SA, EU, UK, and US sizing — plus foot length in centimetres.
+            Use our size charts to find the right size in SA, EU, UK, and US sizing, plus foot length in centimetres.
           </p>
         </div>
       </section>
@@ -116,7 +116,7 @@ export default function SizeGuidePage() {
 
           <div>
             <h2 className="text-xl font-black text-zinc-900 mb-1">Kids&apos; Sizes</h2>
-            <p className="text-sm text-zinc-400 mb-5">Youth sizes — suitable for ages 5–12 approximately.</p>
+            <p className="text-sm text-zinc-400 mb-5">Youth sizes, suitable for ages 5–12 approximately.</p>
             <div className="border border-zinc-100 rounded-2xl p-6">
               <SizeTable rows={KIDS_SIZES} />
             </div>

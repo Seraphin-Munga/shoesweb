@@ -12,7 +12,7 @@ const COOKIE_TYPES = [
   {
     name: "Functional",
     required: false,
-    desc: "These cookies remember your preferences to provide a more personalised experience — such as your currency, language, and recently viewed products.",
+    desc: "These cookies remember your preferences to provide a more personalised experience, such as your currency, language, and recently viewed products.",
     examples: ["Currency preference", "Recently viewed", "Wish list state"],
   },
   {
@@ -47,7 +47,7 @@ export default function CookiesPage() {
         <h2 className="text-sm font-black text-zinc-900 mb-3">What are cookies?</h2>
         <p className="text-sm text-zinc-500 leading-relaxed mb-10">
           Cookies are small text files placed on your device when you visit a website.
-          They help the site remember information about your visit — like items in your cart —
+          They help the site remember information about your visit, like items in your cart 
           and can make your next visit easier and the site more useful to you.
         </p>
 

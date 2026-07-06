@@ -17,7 +17,7 @@ const features = [
       </svg>
     ),
     title: "Easy Returns",
-    desc: "Not the right fit? Return free within 5 days — no questions.",
+    desc: "Not the right fit? Return free within 5 days, no questions.",
   },
   {
     icon: (
@@ -37,7 +37,7 @@ const features = [
       </svg>
     ),
     title: "24/7 Support",
-    desc: "Chat, email, or call — our team responds within minutes.",
+    desc: "Chat, email, or call, our team responds within minutes.",
   },
 ];
 

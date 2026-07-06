@@ -29,19 +29,19 @@ const SECTIONS: { title: string; fields: SectionField[] }[] = [
   {
     title: "Headline",
     fields: [
-      { key: "badge",    label: "Badge / Label",    hint: 'Small text above the headline, e.g. "Summer Collection — 2026"', placeholder: "Summer Collection — 2026" },
+      { key: "badge",    label: "Badge / Label",    hint: 'Small text above the headline, e.g. "Summer Collection, 2026"', placeholder: "Summer Collection, 2026" },
       { key: "headline", label: "Headline",          hint: "Main hero text. Each space-separated word renders on its own line.", multiline: true, placeholder: "Step Into Your" },
-      { key: "accent",   label: "Accent Word",       hint: "Last word shown in gradient colour — usually ends with a period.", placeholder: "World." },
+      { key: "accent",   label: "Accent Word",       hint: "Last word shown in gradient colour, usually ends with a period.", placeholder: "World." },
       { key: "subtext",  label: "Sub-text",          hint: "Short paragraph below the headline.", multiline: true, placeholder: "Premium footwear engineered for every stride." },
     ],
   },
   {
     title: "Call to Action Buttons",
     fields: [
-      { key: "cta1Label", label: "Primary Button — Label", hint: 'Text on the filled gradient button, e.g. "Shop Now"', placeholder: "Shop Now" },
-      { key: "cta1Url",   label: "Primary Button — Link",  hint: 'Where it navigates to, e.g. "/products" or "#new-arrivals"', placeholder: "/products" },
-      { key: "cta2Label", label: "Secondary Button — Label", hint: 'Text on the outline button, e.g. "Browse Collections"', placeholder: "Browse Collections" },
-      { key: "cta2Url",   label: "Secondary Button — Link",  hint: 'Where it navigates to, e.g. "/products?category=all" or "#categories"', placeholder: "#categories" },
+      { key: "cta1Label", label: "Primary Button, Label", hint: 'Text on the filled gradient button, e.g. "Shop Now"', placeholder: "Shop Now" },
+      { key: "cta1Url",   label: "Primary Button, Link",  hint: 'Where it navigates to, e.g. "/products" or "#new-arrivals"', placeholder: "/products" },
+      { key: "cta2Label", label: "Secondary Button, Label", hint: 'Text on the outline button, e.g. "Browse Collections"', placeholder: "Browse Collections" },
+      { key: "cta2Url",   label: "Secondary Button, Link",  hint: 'Where it navigates to, e.g. "/products?category=all" or "#categories"', placeholder: "#categories" },
     ],
   },
   {
@@ -132,7 +132,7 @@ function HeroPreview({ form }: { form: ApiHeroContent }) {
           </div>
         </div>
 
-        {/* Floating cards — top right */}
+        {/* Floating cards, top right */}
         {(form.promoTitle || form.promoBody) && (
           <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10 hidden sm:block">
             {form.promoLabel && <p className="text-[8px] text-zinc-400 uppercase tracking-widest">{form.promoLabel}</p>}
@@ -141,7 +141,7 @@ function HeroPreview({ form }: { form: ApiHeroContent }) {
           </div>
         )}
 
-        {/* Floating card — bottom right */}
+        {/* Floating card, bottom right */}
         {(form.bestSellerName || form.bestSellerPrice) && (
           <div className="absolute bottom-4 right-4 bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/10 hidden sm:block">
             <div className="flex items-center gap-1.5 mb-1">
@@ -198,8 +198,8 @@ function BannerUpload({ currentUrl, token, onUploaded, onUrlChange }: {
     setLocalPreview(URL.createObjectURL(file));
 
     if (!token) {
-      // No token (fallback dev login) — just keep the local preview URL
-      setUploadError("No API token — image previewed locally only. Log in with a real account to upload.");
+      // No token (fallback dev login), just keep the local preview URL
+      setUploadError("No API token, image previewed locally only. Log in with a real account to upload.");
       return;
     }
     setUploading(true);
@@ -286,7 +286,7 @@ function BannerUpload({ currentUrl, token, onUploaded, onUrlChange }: {
         {currentUrl && (
           <button type="button" onClick={() => { onUploaded(""); setLocalPreview(null); }}
             className="text-xs text-red-500 hover:text-red-700 font-semibold transition-colors">
-            ✕ Remove — revert to default
+            ✕ Remove, revert to default
           </button>
         )}
       </div>
@@ -364,7 +364,7 @@ export default function AdminHeroPage() {
         <div>
           <h1 className="text-xl font-black text-zinc-900">Hero Banner</h1>
           <p className="text-sm text-zinc-400 mt-0.5">
-            All banner details — text, buttons, links, and the background image — are editable here.
+            All banner details, text, buttons, links, and the background image, are editable here.
             Changes reflect on the storefront once saved.
           </p>
         </div>

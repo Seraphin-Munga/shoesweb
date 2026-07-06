@@ -478,7 +478,7 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
                     <Image
                       key={activeImg}
                       src={imageUrls[activeImg]}
-                      alt={`${product.name} — photo ${activeImg + 1}`}
+                      alt={`${product.name}, photo ${activeImg + 1}`}
                       fill
                       unoptimized
                       className="object-contain"

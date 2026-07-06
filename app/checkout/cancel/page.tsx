@@ -30,7 +30,7 @@ function CancelContent() {
           <p className="text-zinc-400 text-sm mb-10">
             {isError
               ? `Your payment via ${payment === "payfast" ? "PayFast" : "Yoco"} could not be processed. No charge was made.`
-              : "You cancelled the payment. Your cart is still saved — you can try again whenever you're ready."}
+              : "You cancelled the payment. Your cart is still saved, you can try again whenever you're ready."}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

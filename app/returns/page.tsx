@@ -34,7 +34,7 @@ export default function ReturnsPage() {
             <span className="text-zinc-400">No hassle.</span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed max-w-xl">
-            Not the right fit? Return within 5 days for a full refund — free of charge.
+            Not the right fit? Return within 5 days for a full refund, free of charge.
           </p>
         </div>
       </section>
@@ -122,7 +122,7 @@ export default function ReturnsPage() {
       <section className="py-16 px-6 bg-zinc-50">
         <div className="max-w-xl mx-auto text-center">
           <h2 className="text-xl font-black text-zinc-900 mb-2">Ready to return?</h2>
-          <p className="text-zinc-400 text-sm mb-6">Log in to your account to start the process — takes under 2 minutes.</p>
+          <p className="text-zinc-400 text-sm mb-6">Log in to your account to start the process, takes under 2 minutes.</p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/account"
               className="bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors">

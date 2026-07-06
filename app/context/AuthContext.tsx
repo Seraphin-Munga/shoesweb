@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(REFRESH_KEY, data.refreshToken);
       setToken(data.accessToken);
     } catch {
-      // Refresh token expired or invalid — sign out
+      // Refresh token expired or invalid, sign out
       persist(null, null, null);
     }
   }, []);

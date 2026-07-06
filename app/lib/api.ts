@@ -11,7 +11,7 @@ export const BASE = process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcn
 
 async function get<T>(path: string, token?: string): Promise<T> {
   const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
-  // Always cache: "no-store" — using next:{revalidate} here marks the module as
+  // Always cache: "no-store", using next:{revalidate} here marks the module as
   // server-only in Turbopack, breaking every client-side import of this file.
   const res = await fetch(`${BASE}${path}`, { cache: "no-store", headers });
   if (!res.ok) throw new Error(`API ${res.status}: ${path}`);

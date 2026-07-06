@@ -557,7 +557,7 @@ function Dashboard() {
   );
 }
 
-/* ── Page content (uses useSearchParams — must be inside Suspense) */
+/* ── Page content (uses useSearchParams, must be inside Suspense) */
 function AccountContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();

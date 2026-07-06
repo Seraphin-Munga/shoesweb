@@ -33,7 +33,7 @@ Payment is processed via Stripe. By placing an order you authorise us to charge 
   },
   {
     title: "8. Intellectual Property",
-    body: "All content on this website — including text, images, logos, design, and software — is owned by or licensed to STRYDE and protected by copyright, trademark, and other laws. You may not reproduce, distribute, or create derivative works without our written permission.",
+    body: "All content on this website, including text, images, logos, design, and software, is owned by or licensed to STRYDE and protected by copyright, trademark, and other laws. You may not reproduce, distribute, or create derivative works without our written permission.",
   },
   {
     title: "9. Limitation of Liability",

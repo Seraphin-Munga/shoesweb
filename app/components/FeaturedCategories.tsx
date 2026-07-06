@@ -81,7 +81,7 @@ export default function FeaturedCategories() {
                   className={`group card-lift relative rounded-3xl overflow-hidden border ${cat.imageUrl ? "border-zinc-200" : style.border} flex flex-col cursor-pointer min-h-64`}>
 
                   {cat.imageUrl ? (
-                    /* Real image — full bleed with dark overlay */
+                    /* Real image, full bleed with dark overlay */
                     <>
                       <Image
                         src={cat.imageUrl}

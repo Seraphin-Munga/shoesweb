@@ -272,7 +272,7 @@ export default function AdminSettingsPage() {
         )}
         {testState === "error" && (
           <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 space-y-1">
-            <p className="font-semibold">SMTP failed — email settings are not configured on the server.</p>
+            <p className="font-semibold">SMTP failed, email settings are not configured on the server.</p>
             <p className="font-mono text-xs break-all">{testMsg}</p>
             <p className="text-xs text-red-500 mt-2">
               Add the <span className="font-mono">EmailSettings__*</span> environment variables in your DigitalOcean App settings and redeploy.

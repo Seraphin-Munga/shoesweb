@@ -29,7 +29,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     );
   }
 
-  // Not signed in — show gate
+  // Not signed in, show gate
   if (!user) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center px-6">

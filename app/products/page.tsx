@@ -318,7 +318,7 @@ function FilterPanel({
         </label>
       </div>
 
-      {/* Category — dynamic from API */}
+      {/* Category, dynamic from API */}
       {apiCategories.length > 0 && (
         <div>
           <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Category</h3>
@@ -355,7 +355,7 @@ function FilterPanel({
         </div>
       </div>
 
-      {/* Colors — dynamic from API */}
+      {/* Colors, dynamic from API */}
       {apiColors.length > 0 && (
         <div>
           <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-3">Color</h3>

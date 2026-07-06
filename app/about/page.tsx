@@ -8,7 +8,7 @@ const VALUES = [
 ];
 
 const MILESTONES = [
-  { year: "2018", event: "STRYDE founded in Cape Town with a single running shoe." },
+  { year: "2018", event: "Fenwalk founded in Cape Town with a single running shoe." },
   { year: "2020", event: "Expanded to trail and casual lines. Reached 10,000 customers." },
   { year: "2022", event: "Launched sustainable materials program. 40% recycled content." },
   { year: "2024", event: "Opened flagship stores in Johannesburg, Durban, and Cape Town." },
@@ -23,13 +23,14 @@ export default function AboutPage() {
       <section className="bg-zinc-950 text-white py-28 px-6">
         <div className="max-w-4xl mx-auto">
           <p className="text-xs font-bold tracking-[0.25em] text-zinc-500 uppercase mb-4">Our Story</p>
-          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-none mb-6">
-            Built for<br />
-            <span className="text-zinc-400">Every Stride.</span>
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.05] mb-6">
+            <span className="text-zinc-600 line-through decoration-zinc-500 decoration-2">we don&apos;t design shoes</span><br />
+            We design shoes<br />
+            <span className="text-zinc-400">people actually live in.</span>
           </h1>
           <p className="text-zinc-400 text-lg leading-relaxed max-w-xl">
-            STRYDE was born from a simple belief — premium footwear shouldn't be a luxury.
-            It should be accessible, purposeful, and built to move with you.
+            From the first prototype sketched in a Cape Town apartment to a brand worn across Southern Africa,
+            we&apos;ve never lost sight of what matters: comfort, quality, and honest pricing.
           </p>
         </div>
       </section>
@@ -40,11 +41,11 @@ export default function AboutPage() {
           <div>
             <p className="text-xs font-bold tracking-[0.2em] text-zinc-400 uppercase mb-3">Mission</p>
             <h2 className="text-3xl font-black text-zinc-900 mb-5 leading-tight">
-              We design shoes people actually live in.
+              Shoes people actually live in.
             </h2>
             <p className="text-zinc-500 leading-relaxed mb-4">
               From the first prototype sketched in a Cape Town apartment to a brand worn across Southern Africa,
-              we've never lost sight of what matters: comfort, quality, and honest pricing.
+              we&apos;ve never lost sight of what matters: comfort, quality, and honest pricing.
             </p>
             <p className="text-zinc-500 leading-relaxed">
               Our team of designers, athletes, and material scientists work together to push the boundaries
@@ -117,10 +118,6 @@ export default function AboutPage() {
             <Link href="/products"
               className="bg-zinc-900 text-white font-bold text-sm px-8 py-3.5 rounded-full hover:bg-zinc-700 transition-colors">
               Shop Now
-            </Link>
-            <Link href="/careers"
-              className="border border-zinc-200 text-zinc-700 font-bold text-sm px-8 py-3.5 rounded-full hover:border-zinc-400 transition-colors">
-              Join Our Team
             </Link>
           </div>
         </div>

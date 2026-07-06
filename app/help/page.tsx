@@ -77,7 +77,7 @@ export default function HelpPage() {
           {[
             { icon: "✉️", label: "Email Us",    detail: "info@fenwalk.com",     sub: "Reply within 24 hours" },
             { icon: "💬", label: "Live Chat",   detail: "Available 9am – 6pm",    sub: "Mon – Fri (SAST)" },
-            { icon: "📞", label: "Call Us",     detail: "+27 21 000 0000",         sub: "Mon – Fri 9am – 5pm" },
+            { icon: "📞", label: "Call Us",     detail: "+27631920607",         sub: "Mon – Fri 9am – 5pm" },
           ].map(({ icon, label, detail, sub }) => (
             <div key={label} className="bg-white border border-zinc-100 rounded-2xl p-5 text-center">
               <span className="text-2xl mb-2 block">{icon}</span>

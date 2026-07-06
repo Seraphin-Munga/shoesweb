@@ -65,7 +65,7 @@ function OrderDrawer({ order, token, onClose, onUpdated }: {
       <div className="relative bg-white w-full max-w-md h-full overflow-y-auto shadow-2xl flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-100">
           <div>
-            <h2 className="font-black text-zinc-900 text-base">{order.orderNumber}</h2>
+            <h2 className="font-black text-zinc-900 text-base">Order #{order.id}</h2>
             <p className="text-xs text-zinc-400">{new Date(order.createdAt).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}</p>
           </div>
           <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 transition-colors">
@@ -327,7 +327,7 @@ export default function AdminOrdersPage() {
                     <input type="checkbox" checked={selected.has(o.id)} onChange={() => toggleOne(o.id)}
                       className="w-4 h-4 rounded border-zinc-300 accent-zinc-900 cursor-pointer" />
                   </td>
-                  <td className="px-3 py-3.5 font-mono text-xs font-bold text-zinc-500">{o.orderNumber}</td>
+                  <td className="px-3 py-3.5 font-mono text-xs font-bold text-zinc-900">#{o.id}</td>
                   <td className="px-3 py-3.5">
                     <div className="font-semibold text-zinc-900 text-xs">{o.customerName}</div>
                     <div className="text-[10px] text-zinc-400">{o.customerEmail}</div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { fetchOrders, adminUpdateOrderStatus } from "../../lib/api";
 import { formatZar } from "../../lib/currency";
@@ -134,16 +135,33 @@ function OrderDrawer({ order, token, onClose, onUpdated }: {
           {/* Items */}
           <div>
             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Items</p>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {(order.items ?? []).map((item) => (
-                <div key={item.id} className="flex items-center justify-between py-2.5 border-b border-zinc-50">
-                  <div>
-                    <p className="text-sm font-semibold text-zinc-900">{item.productName}</p>
-                    <p className="text-xs text-zinc-400">
-                      {item.size ? `Size ${item.size} · ` : ""}Qty {item.quantity}
+                <div key={item.id} className="flex items-center gap-3 py-2.5 border-b border-zinc-50 last:border-0">
+                  <div className="w-14 h-14 rounded-xl bg-zinc-100 overflow-hidden flex-shrink-0 relative">
+                    {item.imageUrl ? (
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.productName}
+                        fill
+                        sizes="56px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl">👟</div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-zinc-900 truncate">{item.productName}</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">
+                      {[
+                        item.size && `Size ${item.size}`,
+                        item.color,
+                        `×${item.quantity}`,
+                      ].filter(Boolean).join(" · ")}
                     </p>
                   </div>
-                  <p className="font-bold text-zinc-900 text-sm">{formatZar(item.totalPrice)}</p>
+                  <p className="font-bold text-zinc-900 text-sm flex-shrink-0">{formatZar(item.totalPrice)}</p>
                 </div>
               ))}
             </div>

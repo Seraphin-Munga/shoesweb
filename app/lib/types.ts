@@ -98,6 +98,8 @@ export type ApiOrderItem = {
   id: number;
   productId: number;
   productName: string;
+  imageUrl?: string;
+  color?: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;

@@ -378,3 +378,14 @@ export async function loginApi(email: string, password: string) {
   if (!json.success) throw new Error(json.message);
   return json.data;
 }
+
+export async function refreshTokenApi(accessToken: string, refreshToken: string) {
+  const res = await fetch(`${BASE}/auth/refresh-token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ accessToken, refreshToken }),
+  });
+  const json: ApiResponse<{ accessToken: string; refreshToken: string; accessTokenExpiry: string }> = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data;
+}

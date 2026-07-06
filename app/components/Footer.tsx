@@ -53,7 +53,11 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="inline-block mb-4">
-              <span className="text-xl font-black tracking-[0.15em] text-zinc-900">STRYDE</span>
+              <svg width="110" height="38" viewBox="0 0 260 88" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fenwalk">
+                <path d="M28 46 Q58 22 98 34 Q138 46 178 24 L182 32 Q142 54 102 42 Q62 30 28 56 Z" fill="#8fb3c8"/>
+                <path d="M22 36 Q52 12 92 24 Q132 36 172 14 L176 22 Q136 44 96 32 Q56 20 22 46 Z" fill="#1d6b6a"/>
+                <text x="22" y="80" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" fontSize="30" fontWeight="400" letterSpacing="0.5" fill="#354266">fenwalk</text>
+              </svg>
             </Link>
             <p className="text-zinc-400 text-sm leading-relaxed mb-6 max-w-xs">
               Premium footwear engineered for every stride. Where performance meets refined design.
@@ -87,7 +91,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="border-t border-zinc-100 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-zinc-400">
-            © <Suspense fallback="2026"><CurrentYear /></Suspense> STRYDE. All rights reserved.
+            © <Suspense fallback="2026"><CurrentYear /></Suspense> Fenwalk. All rights reserved.
           </p>
           <div className="flex gap-2">
             {["VISA","MC","AMEX","PAYPAL"].map((p) => (

@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-2xl mb-4">
             <BiShieldAlt2 className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-black text-white tracking-tight">STRYDE Admin</h1>
+          <h1 className="text-2xl font-black text-white tracking-tight">Fenwalk Admin</h1>
           <p className="text-zinc-500 text-sm mt-1">Sign in to manage your store</p>
         </div>
 
@@ -92,7 +92,7 @@ export default function AdminLoginPage() {
         </form>
 
         <p className="text-center text-xs text-zinc-600 mt-8">
-          STRYDE Admin Portal · Restricted Access
+          Fenwalk Admin Portal · Restricted Access
         </p>
       </div>
     </div>

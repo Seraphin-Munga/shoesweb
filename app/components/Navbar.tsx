@@ -40,10 +40,15 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center group">
-          <span className="text-xl font-black tracking-[0.15em] text-zinc-900 group-hover:text-zinc-600 transition-colors">
-            STRYDE
-          </span>
+        <Link href="/" className="flex items-center group opacity-90 hover:opacity-100 transition-opacity">
+          <svg width="130" height="44" viewBox="0 0 260 88" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fenwalk">
+            {/* Lower wave — silver-blue */}
+            <path d="M28 46 Q58 22 98 34 Q138 46 178 24 L182 32 Q142 54 102 42 Q62 30 28 56 Z" fill="#8fb3c8"/>
+            {/* Upper wave — dark teal */}
+            <path d="M22 36 Q52 12 92 24 Q132 36 172 14 L176 22 Q136 44 96 32 Q56 20 22 46 Z" fill="#1d6b6a"/>
+            {/* Wordmark */}
+            <text x="22" y="80" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" fontSize="30" fontWeight="400" letterSpacing="0.5" fill="#354266">fenwalk</text>
+          </svg>
         </Link>
 
         {/* Desktop nav */}

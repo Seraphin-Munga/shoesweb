@@ -44,8 +44,12 @@ export default function AdminSidebar({ collapsed, onToggle }: Props) {
       }`}>
         {!collapsed && (
           <div>
-            <span className="text-base font-black tracking-[0.15em] text-white">STRYDE</span>
-            <span className="block text-[9px] font-semibold tracking-widest text-zinc-500 uppercase">Admin</span>
+            <svg width="90" height="30" viewBox="0 0 260 88" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Fenwalk">
+              <path d="M28 46 Q58 22 98 34 Q138 46 178 24 L182 32 Q142 54 102 42 Q62 30 28 56 Z" fill="#5a8fa8"/>
+              <path d="M22 36 Q52 12 92 24 Q132 36 172 14 L176 22 Q136 44 96 32 Q56 20 22 46 Z" fill="#2a9090"/>
+              <text x="22" y="80" fontFamily="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" fontSize="30" fontWeight="400" letterSpacing="0.5" fill="#a0b4c8">fenwalk</text>
+            </svg>
+            <span className="block text-[9px] font-semibold tracking-widest text-zinc-500 uppercase mt-0.5">Admin</span>
           </div>
         )}
         <button onClick={onToggle}

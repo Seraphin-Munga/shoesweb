@@ -152,13 +152,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-white text-zinc-900" suppressHydrationWarning>
         <Providers>{children}</Providers>
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-5YGYE8SPLV" strategy="afterInteractive" />
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-1SWV1BS270" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-5YGYE8SPLV');
+            gtag('config', 'G-1SWV1BS270');
           `}
         </Script>
       </body>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { ApiProduct }      from "../../lib/types";
@@ -9,6 +9,7 @@ import { useFavorites }      from "../../context/FavoritesContext";
 import { useReviews, type Review } from "../../context/ReviewsContext";
 import { useAuth }           from "../../context/AuthContext";
 import { formatZar }  from "../../lib/currency";
+import { trackViewItem, trackAddToCart } from "../../lib/analytics";
 
 /* ─── SVG ─────────────────────────────────────────────────── */
 function ShoeDisplay({ bgColor }: { bgColor: string }) {
@@ -379,6 +380,13 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
   const [sizeError, setSizeError] = useState(false);
   const [activeTab, setTab]       = useState<TabKey>("description");
 
+  useEffect(() => {
+    if (!product) return;
+    const price = product.discountedPrice ?? product.activeDiscount?.discountedPrice ?? product.price;
+    trackViewItem({ id: product.id, name: product.name, brand: product.brand, price });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
+
   if (!product) return null;
 
   const liveReviews  = getReviews(product.id);
@@ -402,6 +410,7 @@ export default function ProductDetail({ product, related }: { product: ApiProduc
     }
     setSizeError(false);
     addItem(product, selectedSize, selectedColor, qty);
+    trackAddToCart({ id: product.id, name: product.name, brand: product.brand, price: displayPrice }, selectedSize, selectedColor, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   };

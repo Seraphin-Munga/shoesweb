@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { toZar, formatZarAmount } from "../lib/currency";
 import { createOrder } from "../lib/api";
 import type { ValidatePromoResponse } from "../lib/types";
+import { trackBeginCheckout } from "../lib/analytics";
 
 type PaymentMethod = "yoco";
 
@@ -70,6 +71,11 @@ export default function CheckoutPage() {
     if (!valid || items.length === 0) return;
     setLoading(true);
     setError(null);
+
+    trackBeginCheckout(
+      items.map((i) => ({ id: i.product.id, name: i.product.name, price: i.product.price, quantity: i.quantity, size: i.size, color: i.color })),
+      totalZar,
+    );
 
     try {
       // Step 1: create the order (Pending, not yet paid)

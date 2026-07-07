@@ -11,6 +11,7 @@ import { useAuth } from "../../context/AuthContext";
 import { BASE } from "../../lib/api";
 import { formatZar } from "../../lib/currency";
 import type { ApiUserOrder } from "../../lib/types";
+import { trackPurchase } from "../../lib/analytics";
 
 function SuccessContent() {
   const params   = useSearchParams();
@@ -36,7 +37,11 @@ function SuccessContent() {
           },
         });
         const json = await res.json();
-        if (json.success && json.data) setOrder(json.data as ApiUserOrder);
+        if (json.success && json.data) {
+          const confirmed = json.data as ApiUserOrder;
+          setOrder(confirmed);
+          trackPurchase(confirmed);
+        }
       } catch {
         setError("Could not load order details. Your payment was received.");
       } finally {

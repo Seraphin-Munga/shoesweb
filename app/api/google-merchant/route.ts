@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import type { ApiProduct } from "../../lib/types";
 import { toZar } from "../../lib/currency";
 
-// Re-generate this feed at most every 6 hours (Next.js ISR)
 export const revalidate = 21600;
 
-const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.fenwalk.com").replace(/\/$/, "");
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api").replace(/\/$/, "");
+const SITE    = (process.env.NEXT_PUBLIC_SITE_URL  ?? "https://www.fenwalk.com").replace(/\/$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL   ?? "https://monkfish-app-jcnhk.ondigitalocean.app/api").replace(/\/$/, "");
 
 // Google product category 187 = Apparel & Accessories > Shoes
 const CATEGORY = "187";
@@ -46,7 +45,6 @@ async function fetchAllProducts(): Promise<ApiProduct[]> {
   return all;
 }
 
-// The list endpoint omits description — fetch full detail for each product in batches
 async function fetchDescriptions(products: ApiProduct[]): Promise<Map<number, string>> {
   const map = new Map<number, string>();
   const BATCH = 10;
@@ -72,40 +70,49 @@ async function fetchDescriptions(products: ApiProduct[]): Promise<Map<number, st
   return map;
 }
 
-function buildItem(p: ApiProduct, description: string, colorName?: string): string {
-  const id = colorName
-    ? `${p.id}-${colorName.replace(/\s+/g, "-")}`
-    : String(p.id);
+// One item per color+size combination — Google requires exactly one <g:size> and one <g:color> per item
+function buildItem(
+  p: ApiProduct,
+  description: string,
+  colorName: string | undefined,
+  size: number | undefined,
+): string {
+  const parts = [String(p.id)];
+  if (colorName) parts.push(colorName.replace(/\s+/g, "-"));
+  if (size)      parts.push(String(size));
+  const id = parts.join("-");
 
-  const title = colorName ? `${p.name} - ${colorName}` : p.name;
-  const productUrl = `${SITE}/product/${p.id}`;
-  const hasVariants = p.colors.length > 0;
+  const titleParts = [p.name];
+  if (colorName) titleParts.push(colorName);
+  if (size)      titleParts.push(`Size ${size}`);
+  const title = titleParts.join(" - ");
 
-  // API returns prices in USD — convert to ZAR for the feed
-  const priceZar = toZar(p.price);
+  const hasVariants = p.colors.length > 0 || p.sizes.length > 0;
+
+  const priceZar      = toZar(p.price);
   const discountedZar = p.discountedPrice ? toZar(p.discountedPrice) : undefined;
-  const hasDiscount = !!discountedZar && discountedZar < priceZar;
+  const hasDiscount   = !!discountedZar && discountedZar < priceZar;
 
   const lines = [
     `    <item>`,
-    tag("g:id", esc(id)),
+    tag("g:id",                   esc(id)),
     hasVariants ? tag("g:item_group_id", String(p.id)) : "",
-    tag("g:title", esc(title)),
-    tag("g:description", esc(description)),
-    tag("g:link", esc(productUrl)),
+    tag("g:title",                esc(title)),
+    tag("g:description",          esc(description)),
+    tag("g:link",                 esc(`${SITE}/product/${p.id}`)),
     p.imageUrls[0] ? tag("g:image_link", esc(p.imageUrls[0])) : "",
     ...p.imageUrls.slice(1, 10).map((url) => tag("g:additional_image_link", esc(url))),
-    tag("g:availability", p.isInStock ? "in stock" : "out of stock"),
-    tag("g:condition", "new"),
-    tag("g:brand", esc(p.brand)),
-    tag("g:price", `${priceZar.toFixed(2)} ZAR`),
+    tag("g:availability",         p.isInStock ? "in stock" : "out of stock"),
+    tag("g:condition",            "new"),
+    tag("g:brand",                esc(p.brand)),
+    tag("g:price",                `${priceZar.toFixed(2)} ZAR`),
     hasDiscount ? tag("g:sale_price", `${discountedZar!.toFixed(2)} ZAR`) : "",
     tag("g:google_product_category", CATEGORY),
-    tag("g:product_type", "Shoes"),
+    tag("g:product_type",         "Shoes"),
     colorName ? tag("g:color", esc(colorName)) : "",
-    tag("g:gender", p.gender === "Women" ? "female" : "male"),
+    size      ? tag("g:size",  String(size))   : "",
+    tag("g:gender",    p.gender === "Women" ? "female" : "male"),
     tag("g:age_group", "adult"),
-    ...p.sizes.map((s) => tag("g:size", String(s))),
     `    </item>`,
   ].filter(Boolean);
 
@@ -123,12 +130,15 @@ export async function GET() {
       descriptionMap.get(p.id) ??
       `${p.name} by ${p.brand}. Premium footwear available in multiple sizes and colors.`;
 
-    if (p.colors.length > 0) {
-      for (const color of p.colors) {
-        items.push(buildItem(p, description, color.name));
+    const colors = p.colors.length > 0 ? p.colors.map((c) => c.name) : [undefined];
+    const sizes  = p.sizes.length  > 0 ? p.sizes                      : [undefined];
+
+    // One item per color × size combination — fixes "too many values [size]"
+    // and "too many variant values [item_group_id]"
+    for (const color of colors) {
+      for (const size of sizes) {
+        items.push(buildItem(p, description, color, size));
       }
-    } else {
-      items.push(buildItem(p, description));
     }
   }
 

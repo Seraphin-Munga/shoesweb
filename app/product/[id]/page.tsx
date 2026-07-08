@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { fetchProduct, fetchRelated } from "../../lib/api";
+import { toZar } from "../../lib/currency";
 import ProductDetail from "./ProductDetail";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
@@ -60,8 +61,37 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
     related = await fetchRelated(Number(id), 4);
   } catch {}
 
+  const priceZar      = toZar((product as any).price);
+  const discountedZar = (product as any).discountedPrice ? toZar((product as any).discountedPrice) : null;
+  const displayPriceZar = discountedZar ?? priceZar;
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: (product as any).name,
+    description: (product as any).description ?? `Buy ${(product as any).name} by ${(product as any).brand} online in South Africa.`,
+    brand: { "@type": "Brand", name: (product as any).brand },
+    image: (product as any).imageUrls ?? [],
+    url: `https://www.fenwalk.com/product/${id}`,
+    sku: String((product as any).id),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "ZAR",
+      price: displayPriceZar.toFixed(2),
+      availability: (product as any).isInStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      url: `https://www.fenwalk.com/product/${id}`,
+      seller: { "@type": "Organization", name: "Fenwalk" },
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
       <ProductDetail product={product as any} related={related as any[]} />
       <Footer />

@@ -419,6 +419,27 @@ export async function verifyOtpApi(email: string, code: string) {
   if (!json.success) throw new Error(json.message);
 }
 
+export async function sendMagicOtpApi(email: string) {
+  const res = await fetch(`${BASE}/auth/send-magic-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const json: ApiResponse<null> = await res.json();
+  if (!json.success) throw new Error(json.message);
+}
+
+export async function verifyMagicOtpApi(email: string, code: string) {
+  const res = await fetch(`${BASE}/auth/verify-magic-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+  const json = await res.json();
+  if (!json.success) throw new Error(json.message);
+  return json.data as { accessToken: string; refreshToken: string; user: { firstName: string; lastName: string; email: string; role: string } };
+}
+
 export async function refreshTokenApi(accessToken: string, refreshToken: string) {
   const res = await fetch(`${BASE}/auth/refresh-token`, {
     method: "POST",

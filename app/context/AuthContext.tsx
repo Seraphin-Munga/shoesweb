@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
-import { loginApi, registerApi, refreshTokenApi } from "../lib/api";
+import { loginApi, registerApi, refreshTokenApi, verifyMagicOtpApi } from "../lib/api";
 
 export type User = {
   firstName: string;
@@ -17,6 +17,7 @@ type AuthContextValue = {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (firstName: string, lastName: string, email: string, password: string) => Promise<void>;
+  signInWithOtp: (email: string, code: string) => Promise<void>;
   signOut: () => void;
 };
 
@@ -134,10 +135,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const signInWithOtp = useCallback(async (email: string, code: string) => {
+    setLoading(true);
+    try {
+      const data = await verifyMagicOtpApi(email.trim().toLowerCase(), code);
+      const u: User = {
+        firstName: data.user.firstName,
+        lastName:  data.user.lastName,
+        email:     data.user.email,
+        role:      data.user.role,
+        joinedAt:  new Date().toISOString(),
+      };
+      persist(u, data.accessToken, data.refreshToken);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const signOut = useCallback(() => persist(null, null, null), []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, token, loading, signIn, signUp, signInWithOtp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

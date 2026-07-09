@@ -9,9 +9,9 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   try {
     const product = await fetchProduct(Number(id));
-    const title       = `${product.name} — Buy Online South Africa`;
+    const title       = `${product.name} — Buy Online South Africa | ${product.brand} Shoes`;
     const description = product.description
-      ?? `Buy ${product.name} by ${product.brand} online in South Africa. Authentic, quality-checked, fast delivery. Free shipping on orders over R3 000.`;
+      ?? `Buy ${product.name} by ${product.brand} online in South Africa. Available for men and women. Authentic, quality-checked, fast delivery. Free shipping on orders over R3 000. Shop ${product.brand} shoes on sale at Fenwalk.`;
     const image       = product.imageUrls?.[0];
     const url         = `https://www.fenwalk.com/product/${id}`;
     return {
@@ -19,12 +19,26 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       description,
       keywords: [
         product.name,
+        `${product.name} South Africa`,
+        `buy ${product.name} online`,
+        `${product.name} for men`,
+        `${product.name} for women`,
+        `${product.name} sale`,
         product.brand,
         `${product.brand} South Africa`,
-        `buy ${product.brand} online`,
-        `${product.name} South Africa`,
-        "shoes South Africa",
+        `${product.brand} shoes for men South Africa`,
+        `${product.brand} shoes for women South Africa`,
+        `${product.brand} for men sale`,
+        `${product.brand} for women sale`,
+        `buy ${product.brand} online South Africa`,
+        `cheap ${product.brand} shoes South Africa`,
+        `${product.brand} sneakers South Africa`,
+        `${product.brand} sale South Africa`,
+        `${(product as any).category ?? "shoes"} for men South Africa`,
+        `${(product as any).category ?? "shoes"} for women South Africa`,
         "buy shoes online South Africa",
+        "shoes for sale South Africa",
+        "sneakers South Africa",
       ],
       alternates: { canonical: url },
       openGraph: {

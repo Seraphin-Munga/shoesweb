@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description:
     "Fenwalk is South Africa's favourite online shoe store. Shop Nike, Adidas, New Balance, Puma, Vans, Reebok & more. Free shipping over R3 000. Fast delivery to Cape Town, Johannesburg, Durban & nationwide.",
   keywords: [
-    // High-intent buyer keywords
+    // ── High-intent buyer phrases ────────────────────────────
     "buy shoes online South Africa",
     "order shoes online South Africa",
     "shoes for sale South Africa",
@@ -23,48 +23,76 @@ export const metadata: Metadata = {
     "shoes on sale South Africa",
     "best price sneakers South Africa",
     "free delivery shoes South Africa",
-    // Online store
     "online shoe store South Africa",
     "best online shoe store South Africa",
-    "South Africa shoe shop online",
-    // Top brands
-    "Nike South Africa",
-    "Adidas South Africa",
-    "New Balance South Africa",
-    "Puma South Africa",
-    "Vans South Africa",
-    "Reebok South Africa",
-    "Converse South Africa",
-    "ASICS South Africa",
-    "Jordan South Africa",
-    "Saucony South Africa",
-    // Specific models
-    "Nike Air Force 1 South Africa",
-    "Nike Air Max South Africa",
-    "Adidas Ultraboost South Africa",
-    "New Balance 550 South Africa",
+
+    // ── Nike buyer-intent combos ─────────────────────────────
+    "Nike shoes for men South Africa",
+    "Nike shoes for women South Africa",
+    "Nike for men sale",
+    "Nike for women sale",
+    "cheap Nike shoes South Africa",
+    "buy Nike online South Africa",
+    "Nike Air Max men South Africa",
+    "Nike Air Force 1 women South Africa",
+    "Nike running shoes South Africa",
+    "Nike sale South Africa",
+    "Nike sneakers men",
+    "Nike sneakers women",
+
+    // ── Adidas buyer-intent combos ───────────────────────────
+    "Adidas shoes for men South Africa",
+    "Adidas shoes for women South Africa",
+    "Adidas sneakers for men sale",
+    "Adidas sneakers for women sale",
+    "cheap Adidas shoes South Africa",
+    "Adidas sale South Africa",
+    "buy Adidas online South Africa",
+    "Adidas Ultraboost men South Africa",
+    "Adidas running shoes South Africa",
+
+    // ── Other brands ─────────────────────────────────────────
+    "New Balance for men South Africa",
+    "New Balance for women South Africa",
+    "New Balance 550 sale South Africa",
+    "Puma shoes men South Africa",
+    "Puma shoes women South Africa",
+    "Jordan shoes for men South Africa",
+    "Jordan shoes for women South Africa",
     "Air Jordan South Africa",
-    // Categories
-    "sneakers online South Africa",
-    "running shoes online South Africa",
-    "gym shoes South Africa",
-    "casual sneakers South Africa",
-    "lifestyle sneakers South Africa",
-    "retro sneakers South Africa",
-    // Demographics
-    "mens sneakers South Africa",
-    "womens sneakers South Africa",
+    "Vans shoes South Africa",
+    "Converse shoes South Africa",
+    "Reebok shoes South Africa",
+
+    // ── Category + gender ────────────────────────────────────
+    "men's running shoes South Africa",
+    "women's running shoes South Africa",
+    "men's sneakers South Africa",
+    "women's sneakers South Africa",
+    "men's basketball shoes South Africa",
+    "women's casual shoes South Africa",
+    "men's training shoes South Africa",
     "kids shoes South Africa",
-    // Locations
+    "sneakers sale South Africa",
+    "running shoes sale South Africa",
+    "cheap sneakers South Africa",
+
+    // ── Natural language / question queries ──────────────────
+    "best sneakers to buy in South Africa",
+    "where to buy Nike shoes South Africa",
+    "where to buy Adidas shoes South Africa",
+    "top shoe brands South Africa",
+    "most popular sneakers South Africa",
+    "best running shoes for men South Africa",
+    "best sneakers for women South Africa",
+    "most comfortable shoes South Africa",
+
+    // ── Location ─────────────────────────────────────────────
     "shoes online Cape Town",
     "shoes online Johannesburg",
     "shoes online Durban",
     "shoes online Pretoria",
-    // Long-tail
-    "best sneakers to buy in South Africa",
-    "where to buy sneakers online South Africa",
-    "top shoe brands South Africa",
-    "most popular sneakers South Africa",
+
     "Fenwalk",
     "Fenwalk shoes",
   ],

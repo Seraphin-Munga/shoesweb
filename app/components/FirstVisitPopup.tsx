@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import { sendMagicOtpApi } from "../lib/api";
+import { sendMagicOtpApi, fetchProducts } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 
 const STORAGE_KEY = "fenwalk_first_visit_seen";
@@ -16,12 +16,22 @@ export default function FirstVisitPopup() {
   const [otp, setOtp]           = useState("");
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
+  const [shoeImg, setShoeImg]   = useState<string>("/shoe-banner.png");
   const inputRef                = useRef<HTMLInputElement>(null);
+
+  // Fetch a real product image from the store
+  useEffect(() => {
+    fetchProducts({ sort: "popular", pageSize: 6 })
+      .then(res => {
+        const imgs = res.items.flatMap(p => p.imageUrls).filter(Boolean);
+        if (imgs.length) setShoeImg(imgs[0]);
+      })
+      .catch(() => {/* keep fallback */});
+  }, []);
 
   useEffect(() => {
     if (user) return;
     if (!localStorage.getItem(STORAGE_KEY)) {
-      // Small delay so it doesn't flash instantly on page load
       const t = setTimeout(() => setVisible(true), 900);
       return () => clearTimeout(t);
     }
@@ -217,8 +227,9 @@ export default function FirstVisitPopup() {
                 style={{ width: "88%", maxWidth: 380, paddingBottom: 16 }}
               >
                 <Image
-                  src="/popup-shoe.png"
+                  src={shoeImg}
                   alt="Featured sneaker — 25% off"
+                  unoptimized={shoeImg.startsWith("http")}
                   width={520}
                   height={440}
                   className="w-full h-auto drop-shadow-[0_24px_40px_rgba(0,0,0,0.7)]"
